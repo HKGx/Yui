@@ -50,7 +50,7 @@ namespace Yui.Modules.DevCommands
                 await ctx.RespondAsync(trans.UpdateBotNoFileText);
                 return;
             }
-            var file = Directory.GetCurrentDirectory() + "/update.sh";
+            var file = "update.sh";
             var proc = new Process
             {
                 StartInfo =

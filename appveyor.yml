@@ -17,7 +17,7 @@ before_build:
 build_script:
   - cmd: dotnet build Yui.sln -v Minimal -c Release
   - cmd: dotnet publish ./Yui/Yui.csproj
-  - cmd: 7z a Yui.zip "%APPVEYOR_BUILD_FOLDER%\ModCore\bin\Release\netcoreapp2.1\*.dll"
+  - cmd: 7z a Yui.zip "%APPVEYOR_BUILD_FOLDER%\Yui\bin\Release\netcoreapp2.1\*.dll"
 after_build:
   # For once the build has completed
 artifacts:

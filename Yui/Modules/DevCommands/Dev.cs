@@ -55,8 +55,8 @@ namespace Yui.Modules.DevCommands
             {
                 StartInfo =
                 {
-                    FileName = "nohup",
-                    Arguments = $"bash {file} {Process.GetCurrentProcess().Id}",
+                    FileName = file,
+                    Arguments = $"{Process.GetCurrentProcess().Id}",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true

@@ -55,8 +55,8 @@ namespace Yui.Modules.DevCommands
             {
                 StartInfo =
                 {
-                    FileName = "screen -d",
-                    Arguments = $"{file} {Process.GetCurrentProcess().Id}",
+                    FileName = "screen",
+                    Arguments = $"-d {file} {Process.GetCurrentProcess().Id}",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true

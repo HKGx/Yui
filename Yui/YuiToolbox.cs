@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Microsoft.CodeAnalysis.CSharp;
@@ -15,6 +16,7 @@ namespace Yui
     {
         public ConcurrentBag<YuiShard> Shards = new ConcurrentBag<YuiShard>();
         public ConcurrentBag<DiscordGuildEmoji> Emojis = new ConcurrentBag<DiscordGuildEmoji>();
+        private CancellationTokenSource _cts = new CancellationTokenSource();
         public static YuiToolbox YToolbox;
         
         private static async Task Main(string[] args)
@@ -73,7 +75,7 @@ namespace Yui
                 Console.ReadKey();
                 return;
             }
-
+            
             var token = JsonConvert.DeserializeObject<Token>(
                 await File.ReadAllTextAsync(currentDirectory + "/token.json"));
             if (string.IsNullOrWhiteSpace(token.BotToken))
@@ -84,7 +86,9 @@ namespace Yui
                 return;
             }
             #endregion
+
             YToolbox = new YuiToolbox();
+            sharedData.CTS = YToolbox._cts;
             for (var i = 0; i < 2; i++)
             {
                 var shard = new YuiShard(i, sharedData);
@@ -97,8 +101,16 @@ namespace Yui
                 await shard.StartAsync();
             }
             GC.Collect();
-            await Task.Delay(-1);
+            await WaitForCancellation();
+            foreach (var shard in YToolbox.Shards)
+                await shard.DisconnectAsync();
+            YToolbox._cts.Dispose();
+        }
 
+        public static async Task WaitForCancellation()
+        {
+            while (!YToolbox._cts.IsCancellationRequested)
+                await Task.Delay(500);
         }
     }
 }

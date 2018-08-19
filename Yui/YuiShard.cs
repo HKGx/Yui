@@ -194,6 +194,12 @@ namespace Yui
             await Client.ConnectAsync().ConfigureAwait(false);
         }
 
+        public async Task DisconnectAsync()
+        {
+            await Client.DisconnectAsync();
+            Client.Dispose();
+        }
+
         private static DiscordEmoji GetEmoji(ulong id)
         {
             foreach (var emoji in YuiToolbox.YToolbox.Emojis)

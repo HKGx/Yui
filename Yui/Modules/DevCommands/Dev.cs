@@ -64,7 +64,8 @@ namespace Yui.Modules.DevCommands
             };
             proc.Start();
             await ctx.RespondAsync(trans.UpdateBotStartingText);
-            
+            _data.CTS.Cancel();
+
         }
         [Command("rtrans"), RequireOwner]
         public async Task ReloadTranslationsAsync(CommandContext ctx)

@@ -15,8 +15,8 @@ namespace Yui.Entities
         [JsonProperty("laughingReaction2")] public string LaughingReactionText2 { get; set; } = "";
         [JsonProperty("laughingReaction3")] public string LaughingReactionText3 { get; set; } = "";
 
-        [JsonProperty("updateBotStarting")] public string UpdateBotStartingText { get; set; } = "";
-        [JsonProperty("updateBotNoFile")] public string UpdateBotNoFileText { get; set; } = "";
+        //[JsonProperty("updateBotStarting")] public string UpdateBotStartingText { get; set; } = "";
+        //[JsonProperty("updateBotNoFile")] public string UpdateBotNoFileText { get; set; } = "";
         [JsonProperty("reloadedGuilds")] public string ReloadedGuildsText { get; set; } = "";
         [JsonProperty("reloadedTranslations")] public string ReloadedTranslationsText { get; set; } = "";
         [JsonProperty("reloadedHugs")] public string ReloadedHugsText { get; set; } = "";

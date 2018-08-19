@@ -41,32 +41,6 @@ namespace Yui.Modules.DevCommands
             await ctx.RespondAsync(text);
         }
 
-        [Command("update"), RequireOwner]
-        public async Task UpdateBotAsync(CommandContext ctx)
-        {
-            var trans = ctx.Guild.GetTranslation(_data);
-            if (!File.Exists(Directory.GetCurrentDirectory() + "/update.sh"))
-            {
-                await ctx.RespondAsync(trans.UpdateBotNoFileText);
-                return;
-            }
-            var file = "update.sh";
-            var proc = new Process
-            {
-                StartInfo =
-                {
-                    FileName = "#/bin/bash",
-                    Arguments = $"{file} {Process.GetCurrentProcess().Id}",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-            proc.Start();
-            await ctx.RespondAsync(trans.UpdateBotStartingText);
-            _data.CTS.Cancel();
-
-        }
         [Command("rtrans"), RequireOwner]
         public async Task ReloadTranslationsAsync(CommandContext ctx)
         {

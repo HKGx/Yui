@@ -167,7 +167,7 @@ namespace Yui
         private async Task OnReady(ReadyEventArgs args)
         {
             await Client.UpdateStatusAsync(
-                new DiscordActivity("people hugging on 4 shards!", ActivityType.Watching), UserStatus.DoNotDisturb);
+                new DiscordActivity("people hugging on 2 shards!", ActivityType.Watching), UserStatus.DoNotDisturb);
         }
         
 

@@ -76,7 +76,7 @@ namespace Yui.Modules.ModerationCommands
             await ctx.RespondAsync(text);
         }
 
-        [Command("clear"), Aliases("purge"), Cooldown(1, 2, CooldownBucketType.Channel), RequireGuild]
+        [Command("clear"), Aliases("purge"), Cooldown(1, 2, CooldownBucketType.Channel), RequireGuild, RequireBotPermissions(Permissions.ManageMessages)]
         public async Task ClearMessages(CommandContext ctx, int amount)
         {
             var trans = ctx.Guild.GetTranslation(_data);

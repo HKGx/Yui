@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -18,7 +19,7 @@ namespace Yui.Modules.UserCommands
             _random = random;
         }
 
-        [Command("hug")]
+        [Command("hug"), RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles)]
         public async Task HugAsync(CommandContext ctx, DiscordMember member, [RemainingText]string rest)
         {
             var hug = _data.HugGifs.ToArray()[_random.Next(0, _data.HugGifs.Count)];

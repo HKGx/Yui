@@ -1,5 +1,6 @@
 *.json
 /.idea
+/data
 /bin
 /obj
-/Hugs
+/hugs

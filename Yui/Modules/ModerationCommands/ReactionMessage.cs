@@ -25,7 +25,7 @@ namespace Yui.Modules.ModerationCommands
             _random = random;
         }
 
-        [GroupCommand]
+        [GroupCommand, RequireBotPermissions(Permissions.SendMessages | Permissions.UseExternalEmojis | Permissions.AddReactions)]
         public async Task CreateReactionMessage(CommandContext ctx, IEnumerable<DiscordRole> roles,
             IEnumerable<DiscordEmoji> emojis)
         {

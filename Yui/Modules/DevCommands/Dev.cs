@@ -32,6 +32,7 @@ namespace Yui.Modules.DevCommands
         [GroupCommand]
         public async Task GetDevAsync(CommandContext ctx)
         {
+            
             var trans = ctx.Guild.GetTranslation(_data);
             var devUser = (await ctx.Client.GetCurrentApplicationAsync()).Owner;
             var text = trans.GetDevText.Replace("{{devName}}", $"{devUser.Username}#{devUser.Discriminator}") +

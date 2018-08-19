@@ -9,6 +9,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
@@ -38,6 +39,32 @@ namespace Yui.Modules.DevCommands
             var text = trans.GetDevText.Replace("{{devName}}", $"{devUser.Username}#{devUser.Discriminator}") +
                        ":heart:";
             await ctx.RespondAsync(text);
+        }
+
+        [Command("update"), RequireOwner]
+        public async Task UpdateBotAsync(CommandContext ctx)
+        {
+            var trans = ctx.Guild.GetTranslation(_data);
+            if (!File.Exists(Directory.GetCurrentDirectory() + "/update.sh"))
+            {
+                await ctx.RespondAsync(trans.UpdateBotNoFileText);
+                return;
+            }
+            const string file = "./update.sh";
+            var proc = new Process
+            {
+                StartInfo =
+                {
+                    FileName = "screen -d",
+                    Arguments = $"{file} {Process.GetCurrentProcess().Id}",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            await ctx.RespondAsync(trans.UpdateBotStartingText);
+            
         }
         [Command("rtrans"), RequireOwner]
         public async Task ReloadTranslationsAsync(CommandContext ctx)

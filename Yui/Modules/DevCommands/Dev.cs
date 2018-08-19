@@ -55,7 +55,7 @@ namespace Yui.Modules.DevCommands
             {
                 StartInfo =
                 {
-                    FileName = "/bin/bash",
+                    FileName = "#/bin/bash",
                     Arguments = $"{file} {Process.GetCurrentProcess().Id}",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,

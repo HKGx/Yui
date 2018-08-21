@@ -22,3 +22,5 @@
 [Click here!](https://discordapp.com/oauth2/authorize?client_id=479757582005829634&scope=bot&permissions=2146958847) And you can select permissions there, so yeah.
 Some commands will just drop when Yui has wrong permissions.
 ##
+### List of Commands:
+[Click here!](https://github.com/HkgStudio/Yui/wiki/Commands)

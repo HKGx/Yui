@@ -4,9 +4,11 @@
 ### Features:
 - [x] You can hug other members with Yui
 - [x] You can use translations (there is only polish and english translation)
-- [x] You can setup modroles for your server
+- [x] You can setup modrole for your server
+- [x] You can set guild bot prefix
 - [x] You can purge spam messages
 - [x] You can create reaction messages (users reacts and Yui gives role)
+- [x] You can hide spoilers with simple command
 - [ ] More fun commands like !hug
 - [ ] More translations
 - [ ] More moderation stuff

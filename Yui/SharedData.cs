@@ -10,21 +10,18 @@ namespace Yui
     public class SharedData
     {
         public ConcurrentBag<string> HugGifs { get; set; } = new ConcurrentBag<string>();
-        public ConcurrentBag<Guild> Guilds { get; set; }
+        
         public ConcurrentDictionary<Guild.Languages, Translation> Translations { get; set; }
-        public CancellationTokenSource CTS { get; set; }
-        public async Task SaveGuildsAsync() =>
-            await File.WriteAllTextAsync(Directory.GetCurrentDirectory() + "/data/guilds.json",
-                JsonConvert.SerializeObject(Guilds, Formatting.Indented));
 
-        public async Task ReloadTranslationsAsync() => Translations =
-            JsonConvert.DeserializeObject<ConcurrentDictionary<Guild.Languages, Translation>>(
-                await File.ReadAllTextAsync(Directory.GetCurrentDirectory() + "/data/translations.json"));
+        private readonly string _currentDirectory = Directory.GetCurrentDirectory();
+        
+        public CancellationTokenSource CTS { get; set; }
+       
 
         public void ReloadHugs()
         {
             HugGifs.Clear();
-            foreach (var file in Directory.GetFiles(Directory.GetCurrentDirectory() + "/hugs"))
+            foreach (var file in Directory.GetFiles(_currentDirectory + "/hugs"))
             {
                 if (!file.Contains("hug"))
                     continue;
@@ -34,11 +31,13 @@ namespace Yui
                 }
             }
         }
-
-        public async Task LoadGuildsAsync()
+        public async Task LoadTranslationsAsync()
         {
-            Guilds = JsonConvert.DeserializeObject<ConcurrentBag<Guild>>(
-                await File.ReadAllTextAsync(Directory.GetCurrentDirectory() + "/data/guilds.json"));
+            Translations =
+                JsonConvert.DeserializeObject<ConcurrentDictionary<Guild.Languages, Translation>>(
+                    await File.ReadAllTextAsync(_currentDirectory + "/data/translations.json"));
         }
-}
+
+
+    }
 }

@@ -1,17 +1,25 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using DSharpPlus.Entities;
+using LiteDB;
 using Newtonsoft.Json;
 
 namespace Yui.Entities
 {
     public class ReactionMessage
     {
-        [JsonProperty("channel")] public ulong Channel { get; set; }
+        public ReactionMessage()
+        {
+        }
 
-        [JsonProperty("messageId")] public ulong MessageId { get; set; }
-        
-        [JsonProperty("emojiToRole")] public ConcurrentBag<EmojiToRole> EmojiToRole { get; set; }
+        [BsonId] public Guid DbId { get; set; }
+        public ulong GuildId { get; set; }
+
+        public ulong ChannelId { get; set; }
+        public ulong MessageId { get; set; }
+
+        public List<EmojiToRole> EmojiToRole { get; set; }
     }
 }

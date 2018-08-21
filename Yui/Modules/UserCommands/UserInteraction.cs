@@ -13,7 +13,7 @@ namespace Yui.Modules.UserCommands
     {
         private SharedData _data;
         private Random _random;
-        public UserInteraction(SharedData data, Random random, HttpClient client)
+        public UserInteraction(SharedData data, Random random)
         {
             _data = data;
             _random = random;

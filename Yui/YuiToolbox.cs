@@ -12,56 +12,33 @@ using Yui.Entities;
 
 namespace Yui
 {
-    internal class YuiToolbox
+    public class YuiToolbox
     {
         public ConcurrentBag<YuiShard> Shards = new ConcurrentBag<YuiShard>();
         public ConcurrentBag<DiscordGuildEmoji> Emojis = new ConcurrentBag<DiscordGuildEmoji>();
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         public static YuiToolbox YToolbox;
         
         private static async Task Main(string[] args)
         {
             var sharedData = new SharedData();
             var currentDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory(currentDirectory + "/data");
             #region GET HUGS
             Directory.CreateDirectory(currentDirectory + "/hugs");
-            foreach (var file in Directory.GetFiles(currentDirectory + "/hugs"))
-            {
-                if (!file.Contains("hug"))
-                    continue;
-                if (file.EndsWith(".gif"))
-                {
-                    sharedData.HugGifs.Add(file);
-                }
-            }
+            sharedData.ReloadHugs();
             #endregion
-
-            #region Get Guilds
-
-            Directory.CreateDirectory(currentDirectory + "/data");
-            if (!File.Exists(currentDirectory + "/data/guilds.json"))
-            {
-                await File.WriteAllTextAsync(currentDirectory + "/data/guilds.json",
-                    JsonConvert.SerializeObject(new ConcurrentBag<Guild>()));
-            }
-
-            sharedData.Guilds =
-                JsonConvert.DeserializeObject<ConcurrentBag<Guild>>(
-                    await File.ReadAllTextAsync(currentDirectory + "/data/guilds.json"));
             
-            #endregion
-
             #region Get Translations
 
-            Directory.CreateDirectory(currentDirectory + "/data");
+
             if (!File.Exists(currentDirectory + "/data/translations.json"))
             {
                 await File.WriteAllTextAsync(currentDirectory + "/data/translations.json",
                     JsonConvert.SerializeObject(new ConcurrentDictionary<Guild.Languages, Translation>(), Formatting.Indented));
             }
-            sharedData.Translations =
-                JsonConvert.DeserializeObject<ConcurrentDictionary<Guild.Languages, Translation>>(
-                    await File.ReadAllTextAsync(currentDirectory + "/data/translations.json"));
+
+            await sharedData.LoadTranslationsAsync();
             #endregion
 
             #region  GET TOKEN
@@ -107,7 +84,7 @@ namespace Yui
             YToolbox._cts.Dispose();
         }
 
-        public static async Task WaitForCancellation()
+        private static async Task WaitForCancellation()
         {
             while (!YToolbox._cts.IsCancellationRequested)
                 await Task.Delay(500);

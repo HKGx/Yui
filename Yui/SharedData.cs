@@ -23,7 +23,7 @@ namespace Yui
             HugGifs.Clear();
             foreach (var file in Directory.GetFiles(_currentDirectory + "/hugs"))
             {
-                if (!file.Contains("hug"))
+                if (!file.StartsWith("hug"))
                     continue;
                 if (file.EndsWith(".gif"))
                 {

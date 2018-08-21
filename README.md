@@ -9,6 +9,8 @@
 - [x] You can purge spam messages
 - [x] You can create reaction messages (users reacts and Yui gives role)
 - [x] You can hide spoilers with simple command
+- [x] Daily system
+- [x] Own currency (crystals)
 - [ ] More fun commands like !hug
 - [ ] More translations
 - [ ] More moderation stuff

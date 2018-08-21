@@ -11,6 +11,7 @@ namespace Yui.Modules
         public DiscordGuild Guild => Context.Guild;
         public HttpClient Http => Context.Services.GetService<HttpClient>();
         public SharedData Data { get; }
+        public YuiToolbox Toolbox = YuiToolbox.YToolbox;
         public ExecutionData(CommandContext ctx, SharedData data)
         {
             Context = ctx;

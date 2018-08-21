@@ -9,8 +9,10 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using LiteDB;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
+using Yui.Entities;
 using Yui.Extensions;
 
 namespace Yui
@@ -64,7 +66,7 @@ namespace Yui
             {
                 EnableDefaultHelp = false,
                 Services = services,
-                StringPrefixes = new []{ "!" }
+                PrefixResolver = ResolvePrefixAsync,
             };
             Commands = Client.UseCommandsNext(commandsConfig);
             
@@ -80,20 +82,31 @@ namespace Yui
 
         }
 
-        private async Task ClientOnMessageDeleted(MessageDeleteEventArgs e)
+        private async Task ClientOnMessageDeleted(MessageDeleteEventArgs args)
         {
-            
+            if (args.Channel.IsPrivate)
+                return;
+            using (var db = new LiteDatabase("Data.db"))
+            {
+                var rms = db.GetCollection<ReactionMessage>();
+                var rm = rms.FindOne(x =>
+                    x.GuildId   == args.Channel.Guild.Id
+                    && x.ChannelId == args.Channel.Id
+                    && x.MessageId == args.Message.Id);
+                if (rm is null)
+                    return;
+                rms.Delete(rm.DbId);
+            }
         }
 
         private async Task ClientOnGuildEmojisUpdated(GuildEmojisUpdateEventArgs args)
         {
-            var es = Yui.YuiToolbox.YToolbox.Emojis.ToList();
+            var es = YuiToolbox.YToolbox.Emojis.ToList();
             es.RemoveAll(x => args.EmojisBefore.Contains(x));
             es.AddRange(await args.Guild.GetEmojisAsync());
             YuiToolbox.YToolbox.Emojis.Clear();
             foreach (var e in es)
             {
-                Console.WriteLine("added" + e);
                 YuiToolbox.YToolbox.Emojis.Add(e);
             }
         }
@@ -102,51 +115,49 @@ namespace Yui
         {
             if (args.Channel.IsPrivate)
                 return;
-            foreach (var guild in _data.Guilds)
+            using (var db = new LiteDatabase("Data.db"))
             {
-                if (guild.Id != args.Channel.Guild.Id) continue;
-                foreach (var rm in guild.ReactionMessages)
+                var rms = db.GetCollection<ReactionMessage>();
+                var rm = rms.FindOne(x =>
+                    x.GuildId   == args.Channel.Guild.Id
+                    && x.ChannelId == args.Channel.Id
+                    && x.MessageId == args.Message.Id);
+                if (rm is null)
+                    return;
+                foreach (var e in rm.EmojiToRole)
                 {
-                    if (rm.Channel != args.Channel.Id) continue;
-                    if (rm.MessageId != args.Message.Id) continue;
-                    foreach (var erm in rm.EmojiToRole)
-                    {
-                        
-                        var emoji = erm.IsGuild
-                            ? GetEmoji(erm.Id)
-                            : DiscordEmoji.FromUnicode(args.Client, erm.Name);
-                        if (emoji != args.Emoji) continue;
-                        await (await args.Channel.Guild.GetMemberAsync(args.User.Id)).GrantRoleAsync(
-                            args.Channel.Guild.GetRole(erm.Role));
-                        return;
-                    }
+                    var emoji = e.Id > 0 ? GetEmoji(e.Id) : DiscordEmoji.FromUnicode(args.Client, e.Name);
+                    if (emoji != args.Emoji) continue;
+                    var member = await args.Channel.Guild.GetMemberAsync(args.User.Id);
+                    await member.GrantRoleAsync(args.Channel.Guild.GetRole(e.Role));
+                    return;
                 }
             }
         }
+
         private async Task MessageReactionRemove(MessageReactionRemoveEventArgs args)
         {
-            
             if (args.Channel.IsPrivate)
                 return;
-            foreach (var guild in _data.Guilds)
+            using (var db = new LiteDatabase("Data.db"))
             {
-                if (guild.Id != args.Channel.Guild.Id) continue;
-                foreach (var rm in guild.ReactionMessages)
-                {
-                    if (rm.Channel != args.Channel.Id) continue;
-                    if (rm.MessageId != args.Message.Id) continue;
-                    foreach (var erm in rm.EmojiToRole)
-                    {
-                        var emoji = erm.IsGuild
-                            ? GetEmoji(erm.Id)
-                            : DiscordEmoji.FromUnicode(args.Client, erm.Name);
-                        if (emoji != args.Emoji) continue;
-                        await (await args.Channel.Guild.GetMemberAsync(args.User.Id)).RevokeRoleAsync(
-                            args.Channel.Guild.GetRole(erm.Role));
-                        return;
-                    }
-                }
+                var rms = db.GetCollection<ReactionMessage>();
+                var rm = rms.FindOne(x =>
+                       x.GuildId   == args.Channel.GuildId
+                    && x.ChannelId == args.Channel.Id
+                    && x.MessageId == args.Message.Id);
+                if (rm is null)
+                    return;
+                 foreach (var e in rm.EmojiToRole)
+                 {
+                     var emoji = e.Id > 0 ? GetEmoji(e.Id) : DiscordEmoji.FromUnicode(args.Client, e.Name);
+                     if (emoji != args.Emoji) continue;
+                     var member = await args.Channel.Guild.GetMemberAsync(args.User.Id);
+                     await member.RevokeRoleAsync(args.Channel.Guild.GetRole(e.Role));
+                     return;
+                 }
             }
+            
         }
 
         private async Task ClientOnGuildAvailable(GuildCreateEventArgs e)
@@ -156,12 +167,14 @@ namespace Yui
             {
                 YuiToolbox.YToolbox.Emojis.Add(em);
             }
-            if (_data.Guilds.FirstOrDefault(x => x.Id == e.Guild.Id) != null)
-                return;
-            _data.Guilds.Add(Helpers.DefaultGuild(e.Guild.Id));
-            
 
-            await _data.SaveGuildsAsync();
+            using (var db = new LiteDB.LiteDatabase("Data.db"))
+            {
+                var guilds = db.GetCollection<Guild>();
+                if (guilds.Exists(x => x.Id == e.Guild.Id))
+                    return;
+                guilds.Insert(Helpers.DefaultGuild(e.Guild.Id));
+            }
         }
 
         private async Task OnReady(ReadyEventArgs args)
@@ -208,6 +221,18 @@ namespace Yui
                     return emoji;
             }
             throw new Exception();
+        }
+
+        private Task<int> ResolvePrefixAsync(DiscordMessage msg)
+        {
+            using (var db = new LiteDatabase(@"Data.db"))
+            {
+                var guilds = db.GetCollection<Guild>();
+                var g = guilds.FindOne(x => x.Id == msg.Channel.GuildId);
+                return Task.FromResult(g is null
+                    ? msg.GetStringPrefixLength("!")
+                    : msg.GetStringPrefixLength(g.Prefix));
+            }
         }
     }
 }

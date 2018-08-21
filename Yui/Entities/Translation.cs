@@ -17,7 +17,6 @@ namespace Yui.Entities
 
         //[JsonProperty("updateBotStarting")] public string UpdateBotStartingText { get; set; } = "";
         //[JsonProperty("updateBotNoFile")] public string UpdateBotNoFileText { get; set; } = "";
-        [JsonProperty("reloadedGuilds")] public string ReloadedGuildsText { get; set; } = "";
         [JsonProperty("reloadedTranslations")] public string ReloadedTranslationsText { get; set; } = "";
         [JsonProperty("reloadedHugs")] public string ReloadedHugsText { get; set; } = "";
 
@@ -26,7 +25,7 @@ namespace Yui.Entities
         [JsonProperty("clearCommandDone")] public string ClearCommandDone { get; set; } = "";
         
         [JsonProperty("setModRole")] public string SetModRoleText { get; set; } = "";
-        
+        [JsonProperty("setPrefix")] public string SetPrefixText { get; set; } = "";
         [JsonProperty("setLanguage")] public string SetLanguageText { get; set; } = "";
         [JsonProperty("langFlag")] public string LangFlagText { get; set; } = ":flag_:";
         [JsonProperty("langJoke")] public string LangJokeText { get; set; } = "";
@@ -37,7 +36,11 @@ namespace Yui.Entities
         public string ReactionCommandEmojiUnreachableText { get; set; } = "";
         [JsonProperty("reactionCommandOverLimit")]
         public string ReactionCommandOverLimitText { get; set; } = "";
-        [JsonProperty("reactionCommandEmbedName")] public string ReactionCommandEmbedNameText { get; set; }
 
+        [JsonProperty("reactionCommandEmbedName")]
+        public string ReactionCommandEmbedNameText { get; set; } = "";
+
+        [JsonProperty("spoilerCreated")] public string SpoilerCreatedText { get; set; } = "";
+        [JsonProperty("spoilerDecoded")] public string SpoilerDecodedText { get; set; } = "";
     }
 }

@@ -44,7 +44,7 @@ namespace Yui.Modules.DevCommands
         [Command("rtrans"), RequireOwner]
         public async Task ReloadTranslationsAsync(CommandContext ctx)
         {
-            await _data.ReloadTranslationsAsync();
+            await _data.LoadTranslationsAsync();
             await ctx.RespondAsync(ctx.Guild.GetTranslation(_data).ReloadedTranslationsText);
         }
 
@@ -53,13 +53,6 @@ namespace Yui.Modules.DevCommands
         {
             _data.ReloadHugs();
             await ctx.RespondAsync(ctx.Guild.GetTranslation(_data).ReloadedHugsText);
-        }
-
-        [Command("rguilds"), RequireOwner]
-        public async Task ReloadGuildsAsync(CommandContext ctx)
-        {
-            await _data.LoadGuildsAsync();
-            await ctx.RespondAsync(ctx.Guild.GetTranslation(_data).ReloadedGuildsText);
         }
 
         [Command("addhug"), RequireOwner]

@@ -1,5 +1,5 @@
 # Yui – *a very cool bot*
-![](https://i.imgur.com/wOCz7em.png)
+![](https://www.bit.ly/yuiImage)
 ##
 ### Features:
 - [x] You can hug other members with Yui

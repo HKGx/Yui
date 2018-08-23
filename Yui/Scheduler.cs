@@ -1,21 +1,25 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Yui
 {
     public class Scheduler
     {
-        //TODO: make scheduler
-
         public Scheduler()
         {
+            _tenSecondsTimer = new Timer(async x => await TenSecondsCallback(x), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
         }
 
-        public Timer SecondTimer = new Timer(async o => await EverySecondCallback(o), null, 0, 1000);
+        private Timer _tenSecondsTimer;
+        
+        public event AsyncEventHandler TenSecondsPassed;
 
-        private static async Task EverySecondCallback(object state)
+        private Task TenSecondsCallback(object o)
         {
-            
+            return Task.FromResult(TenSecondsPassed?.Invoke());
         }
     }
 }

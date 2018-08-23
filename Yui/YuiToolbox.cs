@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
 using Yui.Entities;
+using Yui.Entities.Database;
 
 namespace Yui
 {
     public class YuiToolbox
     {
         public ConcurrentBag<YuiShard> Shards = new ConcurrentBag<YuiShard>();
-        public ConcurrentBag<DiscordGuildEmoji> Emojis = new ConcurrentBag<DiscordGuildEmoji>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         public static YuiToolbox YToolbox;
         

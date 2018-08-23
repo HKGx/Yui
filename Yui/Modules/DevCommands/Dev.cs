@@ -9,32 +9,26 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using Yui.Entities.Commands;
 using Yui.Extensions;
 
 namespace Yui.Modules.DevCommands
 {
     [Group("dev"), Aliases("d")]
-    public class Dev : BaseCommandModule
+    public class Dev : CommandModule
     {
-        private SharedData _data;
-        private Random _random;
-        private HttpClient _http;
-        public Dev(SharedData data, Random random, HttpClient client)
+        public Dev(SharedData data, Random random, HttpClient http) : base(data, random, http)
         {
-            _data = data;
-            _random = random;
-            _http = client;
         }
 
         [GroupCommand]
         public async Task GetDevAsync(CommandContext ctx)
         {
             
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             var devUser = (await ctx.Client.GetCurrentApplicationAsync()).Owner;
             var text = trans.GetDevText.Replace("{{devName}}", $"{devUser.Username}#{devUser.Discriminator}") +
                        ":heart:";
@@ -44,15 +38,15 @@ namespace Yui.Modules.DevCommands
         [Command("rtrans"), RequireOwner]
         public async Task ReloadTranslationsAsync(CommandContext ctx)
         {
-            await _data.LoadTranslationsAsync();
-            await ctx.RespondAsync(ctx.Guild.GetTranslation(_data).ReloadedTranslationsText);
+            await Data.LoadTranslationsAsync();
+            await ctx.RespondAsync(ctx.Guild.GetTranslation(Data).ReloadedTranslationsText);
         }
 
         [Command("rhugs"), RequireOwner]
         public async Task ReloadHugsAsync(CommandContext ctx)
         {
-            _data.ReloadHugs();
-            await ctx.RespondAsync(ctx.Guild.GetTranslation(_data).ReloadedHugsText);
+            Data.ReloadHugs();
+            await ctx.RespondAsync(ctx.Guild.GetTranslation(Data).ReloadedHugsText);
         }
 
         [Command("addhug"), RequireOwner]
@@ -64,7 +58,7 @@ namespace Yui.Modules.DevCommands
                     return;
                 var name = "hug-" + url.Split('/')[url.Split('/').Length - 1];
                 var hugName = Directory.GetCurrentDirectory() + "\\hugs\\" + name;
-                using (var stream = await _http.GetStreamAsync(url))
+                using (var stream = await Http.GetStreamAsync(url))
                 {
                     using (var fs = File.Create(hugName))
                     {
@@ -99,7 +93,7 @@ namespace Yui.Modules.DevCommands
 
             #region  create compilation
 
-            var globals = new ExecutionData(ctx, _data);
+            var globals = new ExecutionData(ctx, Data);
             var script = CSharpScript.Create(code, ScriptOptions.Default.AddImports(imports).AddReferences(references),
                 typeof(ExecutionData));
             var sw = Stopwatch.StartNew();
@@ -177,7 +171,9 @@ namespace Yui.Modules.DevCommands
             embed.AddField("Returned: ",
                     scriptExec.ReturnValue == null ? "no value" : scriptExec.ReturnValue.ToString())
                 .AddField("Compilation time: ", sw.ElapsedMilliseconds + "ms")
-                .AddField("Execution time: ", sw2.ElapsedMilliseconds + "ms");
+                .AddField("Execution time: ", sw2.ElapsedMilliseconds + "ms")
+                .AddField("Type: ",
+                    scriptExec.ReturnValue == null ? "none" : scriptExec.ReturnValue.GetType().ToString());
             await ctx.RespondAsync(embed: embed);
 
             #endregion

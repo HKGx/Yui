@@ -4,26 +4,29 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Yui.Entities.Commands;
 using Yui.Extensions;
 
 namespace Yui.Modules.UserCommands
 {
     [Group("spoiler"), Aliases("s")]
-    public class Spoiler : BaseCommandModule
+    public class Spoiler : CommandModule
     {
-        private SharedData _data;
 
-        public Spoiler(SharedData data, Random random, HttpClient client)
+
+        public Spoiler(SharedData data, Random random, HttpClient http) : base(data, random, http)
         {
-            _data = data;
         }
 
+        public override async Task BeforeCallingAsync(CommandContext ctx)
+        {
+            await ctx.Message.DeleteAsync();
+        }
 
         [Command("add")]
         public async Task AddSpoiler(CommandContext ctx, [RemainingText] string spoiler)
         {
-            await ctx.Message.DeleteAsync();
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             await ctx.RespondAsync(trans.SpoilerCreatedText);
             await ctx.RespondAsync($"``{Encode(spoiler)}``");
         }
@@ -31,9 +34,8 @@ namespace Yui.Modules.UserCommands
         [Command("get")]
         public async Task GetSpoiler(CommandContext ctx, [RemainingText] string spoiler)
         {
-           
-            await ctx.Message.DeleteAsync();
-            var trans = ctx.Guild.GetTranslation(_data);
+            
+            var trans = ctx.Guild.GetTranslation(Data);
             await ctx.Member.SendMessageAsync(trans.SpoilerDecodedText.Replace("{{decoded}}", Decode(spoiler)));
         }
 

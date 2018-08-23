@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using LiteDB;
-using Newtonsoft.Json;
 
-namespace Yui.Entities
+namespace Yui.Entities.Database
 {
     public class Guild
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -9,10 +8,10 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
 using LiteDB;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
-using Yui.Entities;
+using Yui.Entities.Database;
 using Yui.Extensions;
 
 namespace Yui
@@ -21,6 +20,7 @@ namespace Yui
     {
         public DiscordClient Client { get; private set; }
         public CommandsNextExtension Commands { get; private set; }
+        public InteractivityExtension Interactivity { get; private set; }
         
         private int _shardId;
         private SharedData _data;
@@ -33,6 +33,7 @@ namespace Yui
 
         public void Initialize(string token)
         {
+            
             var clientConfig = new DiscordConfiguration
             {
                 LogLevel = LogLevel.Info,
@@ -54,7 +55,6 @@ namespace Yui
             Client.MessageReactionAdded += MessageReactionAdd;
             Client.MessageReactionRemoved += MessageReactionRemove;
             Client.GuildAvailable += ClientOnGuildAvailable;
-            Client.GuildEmojisUpdated += ClientOnGuildEmojisUpdated;
             Client.MessageDeleted += ClientOnMessageDeleted;
             
             var services = new ServiceCollection()
@@ -79,6 +79,8 @@ namespace Yui
             
             Commands.CommandErrored += async args => { Console.WriteLine(args.Exception); };
             Commands.CommandExecuted += async args => { Console.WriteLine("done " + args.Command.Name); };
+            
+            Interactivity = Client.UseInteractivity(new InteractivityConfiguration());
 
         }
 
@@ -99,18 +101,6 @@ namespace Yui
             }
         }
 
-        private async Task ClientOnGuildEmojisUpdated(GuildEmojisUpdateEventArgs args)
-        {
-            var es = YuiToolbox.YToolbox.Emojis.ToList();
-            es.RemoveAll(x => args.EmojisBefore.Contains(x));
-            es.AddRange(await args.Guild.GetEmojisAsync());
-            YuiToolbox.YToolbox.Emojis.Clear();
-            foreach (var e in es)
-            {
-                YuiToolbox.YToolbox.Emojis.Add(e);
-            }
-        }
-
         private async Task MessageReactionAdd(MessageReactionAddEventArgs args)
         {
             if (args.Channel.IsPrivate)
@@ -126,7 +116,7 @@ namespace Yui
                     return;
                 foreach (var e in rm.EmojiToRole)
                 {
-                    var emoji = e.Id > 0 ? GetEmoji(e.Id) : DiscordEmoji.FromUnicode(args.Client, e.Name);
+                    var emoji = await e.GetEmoji();
                     if (emoji != args.Emoji) continue;
                     var member = await args.Channel.Guild.GetMemberAsync(args.User.Id);
                     await member.GrantRoleAsync(args.Channel.Guild.GetRole(e.Role));
@@ -143,31 +133,25 @@ namespace Yui
             {
                 var rms = db.GetCollection<ReactionMessage>();
                 var rm = rms.FindOne(x =>
-                       x.GuildId   == args.Channel.GuildId
+                    x.GuildId   == args.Channel.Guild.Id
                     && x.ChannelId == args.Channel.Id
                     && x.MessageId == args.Message.Id);
                 if (rm is null)
                     return;
-                 foreach (var e in rm.EmojiToRole)
-                 {
-                     var emoji = e.Id > 0 ? GetEmoji(e.Id) : DiscordEmoji.FromUnicode(args.Client, e.Name);
-                     if (emoji != args.Emoji) continue;
-                     var member = await args.Channel.Guild.GetMemberAsync(args.User.Id);
-                     await member.RevokeRoleAsync(args.Channel.Guild.GetRole(e.Role));
-                     return;
-                 }
+                foreach (var e in rm.EmojiToRole)
+                {
+                    var emoji = await e.GetEmoji();
+                    if (emoji != args.Emoji) continue;
+                    var member = await args.Channel.Guild.GetMemberAsync(args.User.Id);
+                    await member.RevokeRoleAsync(args.Channel.Guild.GetRole(e.Role));
+                    return;
+                }
             }
-            
         }
 
         private async Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
             Console.WriteLine(e.Guild.Name + " | " + _shardId);
-            foreach (var em in await e.Guild.GetEmojisAsync())
-            {
-                YuiToolbox.YToolbox.Emojis.Add(em);
-            }
-
             using (var db = new LiteDB.LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
@@ -213,15 +197,6 @@ namespace Yui
             Client.Dispose();
         }
 
-        private static DiscordEmoji GetEmoji(ulong id)
-        {
-            foreach (var emoji in YuiToolbox.YToolbox.Emojis)
-            {
-                if (emoji.Id == id)
-                    return emoji;
-            }
-            throw new Exception();
-        }
 
         private Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {

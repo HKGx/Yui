@@ -7,26 +7,23 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.Net.Models;
 using LiteDB;
-using Yui.Entities;
+using Yui.Entities.Commands;
+using Yui.Entities.Database;
 using Yui.Extensions;
 
 namespace Yui.Modules.ModerationCommands
 {
-    public class GuildUtilities : BaseCommandModule
+    public class GuildUtilities : CommandModule
     {
-        private SharedData _data;
-
-        public GuildUtilities(SharedData data)
+        public GuildUtilities(SharedData data, Random random, HttpClient http) : base(data, random, http)
         {
-            _data = data;
         }
 
         [Command("roles"), Cooldown(1, 10, CooldownBucketType.User), RequireGuild]
         public async Task GetRoles(CommandContext ctx)
         {
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             var embed = new DiscordEmbedBuilder
             {
                 Title = trans.AllTheRolesText
@@ -51,7 +48,7 @@ namespace Yui.Modules.ModerationCommands
                 guild.ModRole = modRole.Id;
                 guilds.Update(guild);
             }
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             var text = trans.SetModRoleText.Replace("{{roleName}}", modRole.Name);
             await ctx.RespondAsync(text);
 
@@ -70,7 +67,7 @@ namespace Yui.Modules.ModerationCommands
                 guild.Lang = lang;
                 guilds.Update(guild.DbId, guild);
             }
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             var text = trans.SetLanguageText.Replace("{{langFlag}}", trans.LangFlagText).Replace("{{langJoke}}", trans.LangJokeText);
             await ctx.RespondAsync(text);
         }
@@ -88,14 +85,14 @@ namespace Yui.Modules.ModerationCommands
                 guild.Prefix = prefix;
                 guilds.Update(guild.DbId, guild);
             }
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             var text = trans.SetPrefixText.Replace("{{prefix}}", prefix);
             await ctx.RespondAsync(text);
         }
         [Command("clear"), Aliases("purge"), Cooldown(1, 2, CooldownBucketType.Channel), RequireGuild, RequireBotPermissions(Permissions.ManageMessages)]
         public async Task ClearMessages(CommandContext ctx, int amount)
         {
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             
             if (amount < 1 || amount > 100)
             {

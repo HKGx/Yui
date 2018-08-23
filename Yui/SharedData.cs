@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Yui.Entities;
+using Yui.Entities.Database;
 
 namespace Yui
 {
@@ -16,6 +17,8 @@ namespace Yui
         private readonly string _currentDirectory = Directory.GetCurrentDirectory();
         
         public CancellationTokenSource CTS { get; set; }
+        
+        
        
 
         public void ReloadHugs()

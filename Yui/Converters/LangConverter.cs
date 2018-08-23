@@ -1,9 +1,5 @@
-using System;
-using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.Entities;
-using Yui.Entities;
+using Yui.Entities.Database;
 
 namespace Yui.Converters
 {

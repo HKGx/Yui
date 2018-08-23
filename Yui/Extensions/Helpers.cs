@@ -1,8 +1,8 @@
-using System.Collections.Concurrent;
-using System.Linq;
+using System.Reflection;
 using DSharpPlus.Entities;
 using LiteDB;
 using Yui.Entities;
+using Yui.Entities.Database;
 
 namespace Yui.Extensions
 {
@@ -18,6 +18,15 @@ namespace Yui.Extensions
             }
         }
 
+        public static string GetFullName(this DiscordUser user)
+        {
+            return $"{user.Username}#{user.Discriminator}";
+        }
+
+        public static string GetFullName(this DiscordMember member)
+        {
+            return $"{member.Username}#{member.Discriminator}"; 
+        }
         public static Guild DefaultGuild(ulong id) => new Guild(id);
 
         public static Guild WithModRole(this Guild guild, ulong id)
@@ -25,5 +34,12 @@ namespace Yui.Extensions
             guild.ModRole = id;
             return guild;
         }
+        public static void SetProperty<T1, T2>(T1 o1, string name, T2 o2)
+        {
+            var property = o1.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+            property = property.DeclaringType.GetProperty(property.Name);
+            property.SetValue(o1, o2);
+        }
+
     }
 }

@@ -53,13 +53,18 @@ namespace Yui
             };
             
             Client.Ready += OnReady;
+            
             Client.MessageCreated += MessageCreated;
+            Client.MessageDeleted += ClientOnMessageDeleted;
+            
             Client.MessageReactionAdded += MessageReactionAdd;
             Client.MessageReactionRemoved += MessageReactionRemove;
+            
             Client.GuildMemberAdded += ClientOnGuildMemberAdded;
+            Client.GuildMemberUpdated += ClientOnGuildMemberUpdated;
             Client.GuildAvailable += ClientOnGuildAvailable;
             
-            Client.MessageDeleted += ClientOnMessageDeleted;
+
             
             var services = new ServiceCollection()
                 .AddSingleton(_data)
@@ -90,11 +95,38 @@ namespace Yui
             
 
         }
-        //TODO: track invites
-        private async Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
+
+        private async Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs args)
         {
             await Task.Yield();
-            await Handlers.SpecialJoin.OnSpecialJoin(e);
+            using (var db = new LiteDatabase("Data.db"))
+            {
+                var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
+                if (guild.NightWatchEnabled)
+                {
+                    await Handlers.NightWatch.NightWatchUserChange(args);
+                }
+            }
+            
+        }
+
+        //TODO: track invites
+        private async Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs args)
+        {
+            
+            await Task.Yield();
+            using (var db = new LiteDatabase("Data.db"))
+            {
+                var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
+                if (guild.NightWatchEnabled)
+                {
+                    await Handlers.NightWatch.NightWatchUserJoin(args);
+                }
+            }
+            await Handlers.SpecialJoin.OnSpecialJoin(args);
+            
 
             
         }
@@ -185,14 +217,21 @@ namespace Yui
 
         private async Task MessageCreated(MessageCreateEventArgs args)
         {
+            await Task.Yield();
             if (args.Channel.IsPrivate)
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
                 var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
-                if (guild.HandleUsers == false)
-                    return;
+                if (guild.HandleUsers)
+                {
+                    
+                }
+                else if (guild.NightWatchEnabled)
+                {
+                    await Handlers.NightWatch.NightWatchMessage(args);
+                }
                 
             }
         }

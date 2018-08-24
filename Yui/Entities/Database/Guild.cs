@@ -16,6 +16,8 @@ namespace Yui.Entities.Database
         public ulong ModRole { get; set; }
         public string Prefix { get; set; } = "!";
         public bool HandleUsers { get; set; } = false;
+        public bool TrackInvites { get; set; } = false;
+        public bool NightWatchEnabled { get; set; } = false;
         public List<GuildUser> GuildsUsers { get; set; } = new List<GuildUser>();
         public List<PermanentInvite> Invites { get; set; } = new List<PermanentInvite>();
         public enum Languages

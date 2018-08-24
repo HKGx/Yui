@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -51,8 +52,23 @@ namespace Yui.Modules.ModerationCommands
             var trans = ctx.Guild.GetTranslation(Data);
             var text = trans.SetModRoleText.Replace("{{roleName}}", modRole.Name);
             await ctx.RespondAsync(text);
+        }
 
+        [Command("nightwatch"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
+        public async Task SetNightwatch(CommandContext ctx, bool set)
+        {
+            if (!IsAdmin(ctx))
+                return;
+            using (var db = new LiteDatabase("Data.db"))
+            {
+                var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
+                guild.NightWatchEnabled = set;
+                guilds.Update(guild);
+            }
 
+            var txt = set ? "enabled" : "disabled";
+            await ctx.RespondAsync($"Nightwatch is now {txt}!");
         }
         [Command("lang"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
         public async Task SetLangAsync(CommandContext ctx, Guild.Languages lang)

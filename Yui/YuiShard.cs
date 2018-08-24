@@ -228,7 +228,7 @@ namespace Yui
                 {
                     
                 }
-                else if (guild.NightWatchEnabled)
+                if (guild.NightWatchEnabled)
                 {
                     await Handlers.NightWatch.NightWatchMessage(args);
                 }

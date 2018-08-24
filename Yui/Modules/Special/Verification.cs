@@ -39,7 +39,7 @@ namespace Yui.Modules.Special
             await ctx.Member.GrantRoleAsync(role);
             DiscordChannel newUsers;
             DiscordEmbedBuilder embed;
-            if (user == null)
+            if (user == null || user.Id == ctx.User.Id)
             {
                 newUsers = (await ctx.Guild.GetChannelsAsync()).First(x => x.Id == NewUsersChannelId);
                 embed = new DiscordEmbedBuilder()

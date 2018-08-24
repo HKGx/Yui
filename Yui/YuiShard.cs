@@ -13,6 +13,8 @@ using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Yui.Entities.Database;
 using Yui.Extensions;
+using Yui.Modules.Special;
+using Yui.Modules.UserCommands;
 
 namespace Yui
 {
@@ -51,10 +53,12 @@ namespace Yui
             };
             
             Client.Ready += OnReady;
-            Client.MessageCreated += YuiRespondReactions;
+            Client.MessageCreated += MessageCreated;
             Client.MessageReactionAdded += MessageReactionAdd;
             Client.MessageReactionRemoved += MessageReactionRemove;
+            Client.GuildMemberAdded += ClientOnGuildMemberAdded;
             Client.GuildAvailable += ClientOnGuildAvailable;
+            
             Client.MessageDeleted += ClientOnMessageDeleted;
             
             var services = new ServiceCollection()
@@ -70,10 +74,11 @@ namespace Yui
             };
             Commands = Client.UseCommandsNext(commandsConfig);
             
+            Commands.RegisterConverter(new Converters.ProfileTypeConverter());
             Commands.RegisterConverter(new Converters.LangConverter());
             Commands.RegisterConverter(new Converters.EmojiEnumerableConverter());
             Commands.RegisterConverter(new Converters.RoleEnumerableConverter());
-            
+
             Commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
             
@@ -81,7 +86,17 @@ namespace Yui
             Commands.CommandExecuted += async args => { Console.WriteLine("done " + args.Command.Name); };
             
             Interactivity = Client.UseInteractivity(new InteractivityConfiguration());
+            var scheduler = new Scheduler();
+            
 
+        }
+        //TODO: track invites
+        private async Task ClientOnGuildMemberAdded(GuildMemberAddEventArgs e)
+        {
+            await Task.Yield();
+            await Handlers.SpecialJoin.OnSpecialJoin(e);
+
+            
         }
 
         private async Task ClientOnMessageDeleted(MessageDeleteEventArgs args)
@@ -168,22 +183,17 @@ namespace Yui
         }
         
 
-        private async Task YuiRespondReactions(MessageCreateEventArgs args)
+        private async Task MessageCreated(MessageCreateEventArgs args)
         {
-            if (args.Author.IsBot)
+            if (args.Channel.IsPrivate)
                 return;
-            if (Regex.IsMatch(args.Message.Content, @"(X)(D{7,})", RegexOptions.Multiline | RegexOptions.IgnoreCase))
+            using (var db = new LiteDatabase("Data.db"))
             {
-                var trans = args.Guild.GetTranslation(_data);
-                var msg = new List<DiscordMessage>();
-                await Task.Delay(500);
-                msg.Add(await args.Message.RespondAsync(trans.LaughingReactionText1));
-                await Task.Delay(2000);
-                msg.Add(await args.Message.RespondAsync(trans.LaughingReactionText2));
-                await Task.Delay(1000);
-                msg.Add(await args.Message.RespondAsync(trans.LaughingReactionText3));
-                await Task.Delay(5000);
-                await args.Channel.DeleteMessagesAsync(msg);
+                var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
+                if (guild.HandleUsers == false)
+                    return;
+                
             }
         }
         public async Task StartAsync()
@@ -209,5 +219,6 @@ namespace Yui
                     : msg.GetStringPrefixLength(g.Prefix));
             }
         }
+        
     }
 }

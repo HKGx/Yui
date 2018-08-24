@@ -11,7 +11,7 @@ namespace Yui.Entities.Database
     public class EmojiToRole
     {
         [BsonId]
-        public Guid DbId { get; set; }
+        public ObjectId DbId { get; set; }
         public string FullName { get; set; }
         public ulong Role { get; set; }
 
@@ -30,5 +30,6 @@ namespace Yui.Entities.Database
             var converted = await conv.ConvertAsync(FullName, o);
             return converted.HasValue ? converted.Value : null;
         }
+        
     }
 }

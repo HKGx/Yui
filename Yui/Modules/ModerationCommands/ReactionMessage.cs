@@ -7,6 +7,7 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using LiteDB;
 using Yui.Entities.Commands;
 using Yui.Entities.Database;
@@ -60,9 +61,21 @@ namespace Yui.Modules.ModerationCommands
                 embed.AddField(role.Name, emoji.ToString(), true);
 
             }
-
-
             var msg = await ctx.RespondAsync(embed: embed);
+            
+            foreach (var emoji in discordEmojis)
+            {
+                try
+                {
+                    await msg.CreateReactionAsync(emoji);
+                }
+                catch (BadRequestException)
+                {
+                    var text = trans.ReactionCommandEmojiUnreachableText.Replace("{{emojiName}}", emoji.GetDiscordName());
+                    await ctx.RespondAsync(text);
+                    return;
+                }
+            }
             using (var db = new LiteDatabase("Data.db"))
             {
                 var rms = db.GetCollection<Entities.Database.ReactionMessage>();
@@ -73,10 +86,6 @@ namespace Yui.Modules.ModerationCommands
                     GuildId = ctx.Guild.Id,
                     MessageId = msg.Id
                 });
-            }
-            foreach (var emoji in discordEmojis)
-            {
-                await msg.CreateReactionAsync(emoji);
             }
 
 

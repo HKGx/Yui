@@ -13,13 +13,10 @@ namespace Yui
         public ConcurrentBag<string> HugGifs { get; set; } = new ConcurrentBag<string>();
         
         public ConcurrentDictionary<Guild.Languages, Translation> Translations { get; set; }
-
-        private readonly string _currentDirectory = Directory.GetCurrentDirectory();
-        
+       
         public CancellationTokenSource CTS { get; set; }
         
-        
-       
+        private readonly string _currentDirectory = Directory.GetCurrentDirectory();
 
         public void ReloadHugs()
         {
@@ -40,6 +37,7 @@ namespace Yui
                 JsonConvert.DeserializeObject<ConcurrentDictionary<Guild.Languages, Translation>>(
                     await File.ReadAllTextAsync(_currentDirectory + "/data/translations.json"));
         }
+
 
 
     }

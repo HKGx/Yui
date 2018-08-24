@@ -65,7 +65,7 @@ namespace Yui.Modules.ModerationCommands
                 var guilds = db.GetCollection<Guild>();
                 var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 guild.Lang = lang;
-                guilds.Update(guild.DbId, guild);
+                guilds.Update(guild);
             }
             var trans = ctx.Guild.GetTranslation(Data);
             var text = trans.SetLanguageText.Replace("{{langFlag}}", trans.LangFlagText).Replace("{{langJoke}}", trans.LangJokeText);
@@ -83,7 +83,7 @@ namespace Yui.Modules.ModerationCommands
                 var guilds = db.GetCollection<Guild>();
                 var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 guild.Prefix = prefix;
-                guilds.Update(guild.DbId, guild);
+                guilds.Update(guild);
             }
             var trans = ctx.Guild.GetTranslation(Data);
             var text = trans.SetPrefixText.Replace("{{prefix}}", prefix);

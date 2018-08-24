@@ -1,6 +1,7 @@
 using System.Reflection;
 using DSharpPlus.Entities;
 using LiteDB;
+using SixLabors.ImageSharp.PixelFormats;
 using Yui.Entities;
 using Yui.Entities.Database;
 
@@ -39,6 +40,11 @@ namespace Yui.Extensions
             var property = o1.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
             property = property.DeclaringType.GetProperty(property.Name);
             property.SetValue(o1, o2);
+        }
+
+        public static Rgba32 FromDiscordColor(DiscordColor color)
+        {
+            return new Rgba32(color.R, color.G, color.B);
         }
 
     }

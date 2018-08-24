@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using LiteDB;
 using Yui.Entities.Database;
+using Yui.Modules.UserCommands;
 
 namespace Yui.Entities.Commands
 {
@@ -17,6 +19,7 @@ namespace Yui.Entities.Commands
         protected HttpClient Http;
         protected InteractivityExtension Interactivity;
         protected List<DiscordMessage> ToDelete = new List<DiscordMessage>();
+
         public CommandModule(SharedData data, Random random, HttpClient http)
         {
             Data = data;
@@ -24,7 +27,7 @@ namespace Yui.Entities.Commands
             Http = http;
         }
 
-        public virtual  Task BeforeCallingAsync(CommandContext ctx) => Task.Delay(0);
+        public virtual Task BeforeCallingAsync(CommandContext ctx) => Task.Delay(0);
 
 
         public override async Task BeforeExecutionAsync(CommandContext ctx)

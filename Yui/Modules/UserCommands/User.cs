@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -42,13 +43,15 @@ namespace Yui.Modules.UserCommands
                 .WithThumbnailUrl(user.AvatarUrl)
                 .WithFooter(ctx.Member.GetFullName(), ctx.Member.AvatarUrl);
             embed.AddField(trans.ProfileIdText, user.Id.ToString(), true);
-            embed.AddField(trans.ProfileMoneyText, u?.Money.ToString() ?? "0", true);
+            embed.AddField(trans.ProfileMoneyText, $"{u?.Money.ToString() ?? "0"} <:crystal:481916594864390145>", true);
             await ctx.RespondAsync(embed: embed);
         }
 
         [Command("imgprofile")]
         public async Task GetImgProfile(CommandContext ctx, DiscordUser user = null)
         {
+            if (ctx.User.Id != ctx.Client.CurrentApplication.Owner.Id)
+                return;
             if (user == null)
                 user = ctx.User;
             DbUser u = null;
@@ -60,23 +63,37 @@ namespace Yui.Modules.UserCommands
 
             using (var ms = new MemoryStream())
             {
-                using (var img = new Image<Rgba32>(1024, 720))
+                using (var img = new Image<Rgba32>(1024, 768))
                 {
                     const int size = 39;
                     var font = SystemFonts.CreateFont("Arial", size, FontStyle.Regular);
                     var text = user.Username;
-                    
-                    img.Mutate(c => c
-                        .Fill(Rgba32.Black)
-                        .DrawText(TextGraphicsOptions.Default, text, font, Rgba32.White,
-                            new PointF(img.Width / 2 - (size / 4 * text.Length), img.Height / 2)));
+                    var tm = TextMeasurer.Measure(text, new RendererOptions(font));
+                    Console.WriteLine($"{tm.Width}, {tm.Height}");
+                    try
+                    {
+                        img.Mutate(c => c
+                            .FillPolygon(Helpers.FromDiscordColor(DiscordColor.Blurple),
+                                new PointF(0, 470), new PointF(300, 470), /*upper bound*/
+                                new PointF(300, 770),
+                                new PointF(0, 470 + tm.Height) /* right bound*/));
+                        img.Mutate(c => c.DrawText(TextGraphicsOptions.Default, text, font, Rgba32.White,
+                            new PointF(100 - tm.Width, 470 + tm.Height)));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        img.Dispose();
+                        ms.Dispose();
+                        return;
+                    }
+
                     img.SaveAsPng(ms);
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
                 await ctx.RespondWithFileAsync("file.png", ms);
             }
-
         }
 
         [Command("daily"), Aliases("dly"), Cooldown(1, 10, CooldownBucketType.User), RequireBotPermissions(Permissions.SendMessages)]

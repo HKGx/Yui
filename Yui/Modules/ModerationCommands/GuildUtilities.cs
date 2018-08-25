@@ -125,11 +125,11 @@ namespace Yui.Modules.ModerationCommands
             {
                 var guilds = db.GetCollection<Guild>();
                 guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
-                if (guild.ModRole == 0) return false;
                 var guild1 = guild;
-                if (ctx.Member.Roles.First(x => x.Id == guild1.ModRole) != null)
+                if (ctx.Member.Roles.First(x => x.Id == guild1.ModRole) != null && guild.ModRole != 0)
                     return true;
             }
+            
             return ctx.Member.Roles.Any(role => role.Permissions.HasPermission(Permissions.Administrator)) ||
                    ctx.Member.IsOwner;
         }

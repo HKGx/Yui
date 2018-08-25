@@ -21,7 +21,7 @@ namespace Yui.Handlers
                     "\n" +
                     "Cieszę się, że do nas dołączyłeś(-aś)!" +
                     "\n" +
-                    "Jeżeli ktoś ciebie zaprosił wpisz ``!wer <nazwa użytkownika``, a jeżeli nie to wpisz samo ``!wer``")
+                    "Jeżeli ktoś ciebie zaprosił wpisz ``!wer <nazwa użytkownika>``, a jeżeli nie to wpisz samo ``!wer``")
                 .WithColor(DiscordColor.Blurple);
             await channel.SendMessageAsync(embed: embed);
         }

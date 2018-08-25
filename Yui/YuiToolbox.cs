@@ -47,14 +47,14 @@ namespace Yui
             if (!File.Exists(currentDirectory + "/token.json"))
             {
                 await File.WriteAllTextAsync(currentDirectory + "/token.json",
-                    JsonConvert.SerializeObject(new Token{ BotToken = ""}, Formatting.Indented));
+                    JsonConvert.SerializeObject(new ApiKeys{ BotToken = ""}, Formatting.Indented));
                 Console.WriteLine("Oops, I've generated you token file!");
                 Console.WriteLine("Click any key to exit.");
                 Console.ReadKey();
                 return;
             }
             
-            var token = JsonConvert.DeserializeObject<Token>(
+            var token = JsonConvert.DeserializeObject<ApiKeys>(
                 await File.ReadAllTextAsync(currentDirectory + "/token.json"));
             if (string.IsNullOrWhiteSpace(token.BotToken))
             {

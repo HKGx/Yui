@@ -78,7 +78,8 @@ namespace Yui
                 PrefixResolver = ResolvePrefixAsync,
             };
             Commands = Client.UseCommandsNext(commandsConfig);
-            
+
+            Commands.RegisterConverter(new Converters.OrderConverter());
             Commands.RegisterConverter(new Converters.ProfileTypeConverter());
             Commands.RegisterConverter(new Converters.LangConverter());
             Commands.RegisterConverter(new Converters.EmojiEnumerableConverter());

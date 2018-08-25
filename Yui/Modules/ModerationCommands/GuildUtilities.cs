@@ -122,7 +122,9 @@ namespace Yui.Modules.ModerationCommands
                 (await ctx.Channel.GetMessagesAsync(amount)).Where(x =>
                     (DateTime.Now - x.CreationTimestamp).Days < 14));
             await ctx.Channel.DeleteMessagesAsync(messages);
-            await ctx.RespondAsync(trans.ClearCommandDone.Replace("{{messagesCounts}}", messages.Count().ToString()));
+            var msg = await ctx.RespondAsync(trans.ClearCommandDone.Replace("{{messagesCounts}}", messages.Count().ToString()));
+            await Task.Delay(5000);
+            await msg.DeleteAsync();
         }
         [Command("autorole"), Cooldown(1, 1, CooldownBucketType.Channel), RequireGuild, RequireBotPermissions(Permissions.ManageMessages)]
         public async Task SetAutoRole(CommandContext ctx, DiscordRole role = null)
@@ -136,14 +138,14 @@ namespace Yui.Modules.ModerationCommands
                 guild.AutoRole = role == null ? 0 : role.Id;
                 guilds.Update(guild);
             }
-            //var trans = ctx.Guild.GetTranslation(Data);
-            //var text = trans.SetAutoRole.Replace("{{role}}", role.Name);
+            var trans = ctx.Guild.GetTranslation(Data);
             if (role == null)
             {
-                await ctx.RespondAsync($"Okay! There is no autorole now.");
+                await ctx.RespondAsync(trans.SetAutoRoleNoRoleText);
                 return;
             }
-            await ctx.RespondAsync($"Okay! AutoRole for this guild is: {role.Name} now");
+            var text = trans.SetAutoRoleText.Replace("{{role}}", role.Name);
+            await ctx.RespondAsync(text);
         }
         internal static bool IsAdmin(CommandContext ctx)
         {

@@ -18,6 +18,7 @@ namespace Yui.Entities.Database
         public bool HandleUsers { get; set; } = false;
         public bool TrackInvites { get; set; } = false;
         public bool NightWatchEnabled { get; set; } = false;
+        public ulong AutoRole { get; set; }
         public List<GuildUser> GuildsUsers { get; set; } = new List<GuildUser>();
         public List<PermanentInvite> Invites { get; set; } = new List<PermanentInvite>();
         public enum Languages

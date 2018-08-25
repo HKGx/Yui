@@ -15,10 +15,9 @@ namespace Yui.Handlers
             {
                 return;
             }
-
             var channel = (await args.Guild.GetChannelsAsync()).FirstOrDefault(x => x.Id == ChannelId);
             var embed = new DiscordEmbedBuilder().WithTitle("Zweryfikuj się!").WithDescription(
-                    $"Hejka {args.Member.Mention}!" +
+                    $"Hejka <@{args.Member.Id}>!" +
                     "\n" +
                     "Cieszę się, że do nas dołączyłeś(-aś)!" +
                     "\n" +

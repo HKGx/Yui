@@ -71,7 +71,7 @@ namespace Yui.Modules.ModerationCommands
             await ctx.RespondAsync($"Nightwatch is now {txt}!");
         }
         [Command("lang"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
-        public async Task SetLangAsync(CommandContext ctx, Guild.Languages lang)
+        public async Task SetLangAsync(CommandContext ctx, Guild.Languages lang = Guild.Languages.EN)
         {
             if (!IsAdmin(ctx))
                 return;
@@ -91,6 +91,8 @@ namespace Yui.Modules.ModerationCommands
         public async Task SetPrefixAsync(CommandContext ctx, string prefix)
         {
             if (!IsAdmin(ctx))
+                return;
+            if (string.IsNullOrWhiteSpace(prefix))
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
@@ -121,6 +123,27 @@ namespace Yui.Modules.ModerationCommands
                     (DateTime.Now - x.CreationTimestamp).Days < 14));
             await ctx.Channel.DeleteMessagesAsync(messages);
             await ctx.RespondAsync(trans.ClearCommandDone.Replace("{{messagesCounts}}", messages.Count().ToString()));
+        }
+        [Command("autorole"), Cooldown(1, 1, CooldownBucketType.Channel), RequireGuild, RequireBotPermissions(Permissions.ManageMessages)]
+        public async Task SetAutoRole(CommandContext ctx, DiscordRole role = null)
+        {
+            if (!IsAdmin(ctx))
+                return;
+            using (var db = new LiteDatabase("Data.db"))
+            {
+                var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
+                guild.AutoRole = role == null ? 0 : role.Id;
+                guilds.Update(guild);
+            }
+            //var trans = ctx.Guild.GetTranslation(Data);
+            //var text = trans.SetAutoRole.Replace("{{role}}", role.Name);
+            if (role == null)
+            {
+                await ctx.RespondAsync($"Okay! There is no autorole now.");
+                return;
+            }
+            await ctx.RespondAsync($"Okay! AutoRole for this guild is: {role.Name} now");
         }
         internal static bool IsAdmin(CommandContext ctx)
         {

@@ -76,12 +76,11 @@ namespace Yui.Modules.DevCommands
             if (!code.EndsWith("```"))
                 return;
             code = code.TrimStart('`').TrimEnd('`');
-
             #region script compilation info
             var imports = new List<string>
             {
                 "System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Net.Http",
-                "System.Net.Http.Headers", "System.Reflection", "System.Text", "System.Text.RegularExpressions",
+                "System.Net.Http.Headers","System.IO","System.Reflection", "System.Text", "System.Text.RegularExpressions",
                 "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Entities",
                 "DSharpPlus.EventArgs", "DSharpPlus.Exceptions",
                 "Yui.Entities", "Yui", "Yui.Extensions"

@@ -99,16 +99,19 @@ namespace Yui
         private async Task ClientOnGuildMemberUpdated(GuildMemberUpdateEventArgs args)
         {
             await Task.Yield();
+            var tasks = new List<Task>();
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
                 var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
                 if (guild.NightWatchEnabled)
                 {
-                    await Handlers.NightWatch.NightWatchUserChange(args);
+                    tasks.Add(Handlers.NightWatch.NightWatchUserChange(args));
                 }
             }
-            
+
+            await Task.WhenAll(tasks);
+
         }
 
         //TODO: track invites
@@ -116,17 +119,23 @@ namespace Yui
         {
             
             await Task.Yield();
+            var tasks = new List<Task>();
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
                 var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
                 if (guild.NightWatchEnabled)
                 {
-                    await Handlers.NightWatch.NightWatchUserJoin(args);
+                    tasks.Add(Handlers.NightWatch.NightWatchUserJoin(args));
+                }
+
+                if (guild.AutoRole > 0)
+                {
+                    tasks.Add(Handlers.Join.OnJoin(args, guild.AutoRole));
                 }
             }
-            await Handlers.SpecialJoin.OnSpecialJoin(args);
-            
+            tasks.Add(Handlers.SpecialJoin.OnSpecialJoin(args));
+            await Task.WhenAll(tasks);
 
             
         }
@@ -220,6 +229,7 @@ namespace Yui
             await Task.Yield();
             if (args.Channel.IsPrivate)
                 return;
+            var tasks = new List<Task>();
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
@@ -230,10 +240,10 @@ namespace Yui
                 }
                 if (guild.NightWatchEnabled)
                 {
-                    await Handlers.NightWatch.NightWatchMessage(args);
+                    tasks.Add(Handlers.NightWatch.NightWatchMessage(args));
                 }
-                
             }
+            await Task.WhenAll(tasks);
         }
         public async Task StartAsync()
         {

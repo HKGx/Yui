@@ -13,7 +13,7 @@ namespace Yui.Modules.Special
     {
         private const ulong ChannelId = 482670759970603019;
         private const ulong GuildId = 477477417351512105;
-        private const ulong RoleId = 482653810536480770;
+        private const ulong RoleId = 482915346530041866;
         private const ulong NewUsersChannelId = 482528066556657665;
         public Verification(SharedData data, Random random, HttpClient http) : base(data, random, http)
         {
@@ -32,11 +32,11 @@ namespace Yui.Modules.Special
                 return;
             }
             var role = ctx.Guild.Roles.FirstOrDefault(x => x.Id == RoleId);
-            if (ctx.Member.Roles.Contains(role))
+            if (!ctx.Member.Roles.Contains(role))
             {
                 return;
             }
-            await ctx.Member.GrantRoleAsync(role);
+            await ctx.Member.RevokeRoleAsync(role);
             DiscordChannel newUsers;
             DiscordEmbedBuilder embed;
             if (user == null || user.Id == ctx.User.Id)

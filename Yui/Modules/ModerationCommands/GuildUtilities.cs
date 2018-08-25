@@ -38,14 +38,14 @@ namespace Yui.Modules.ModerationCommands
         }
 
         [Command("modrole"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
-        public async Task SetModRole(CommandContext ctx, DiscordRole modRole)
+        public async Task SetModRole(CommandContext ctx, DiscordRole modRole = null)
         {
             if (!IsAdmin(ctx, out var guild))
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
-                guild.ModRole = modRole.Id;
+                guild.ModRole = modRole == null ? 0 : modRole.Id;
                 guilds.Update(guild);
             }
             var trans = ctx.Guild.GetTranslation(Data);
@@ -99,7 +99,7 @@ namespace Yui.Modules.ModerationCommands
             var text = trans.SetPrefixText.Replace("{{prefix}}", prefix);
             await ctx.RespondAsync(text);
         }
-        [Command("clear"), Aliases("purge"), Cooldown(1, 2, CooldownBucketType.Channel), RequireGuild, RequireBotPermissions(Permissions.ManageMessages)]
+        [Command("clear"), Aliases("purge"), Cooldown(1, 1, CooldownBucketType.Channel), RequireGuild, RequireBotPermissions(Permissions.ManageMessages)]
         public async Task ClearMessages(CommandContext ctx, int amount)
         {
             if (!IsAdmin(ctx))

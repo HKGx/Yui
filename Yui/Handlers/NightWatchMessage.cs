@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
@@ -15,8 +16,10 @@ namespace Yui.Handlers
         }
         public static async Task NightWatchMessage(MessageCreateEventArgs args)
         {
+            Console.WriteLine("ddd");
             if (_inviteRegex.Matches(args.Message.Content).Count > 0)
             {
+                Console.WriteLine("match");
                 await args.Message.DeleteAsync();
                 await (await args.Guild.GetMemberAsync(args.Author.Id)).RemoveAsync("nightwatch");
             }
@@ -24,6 +27,8 @@ namespace Yui.Handlers
 
         public static async Task NightWatchUserChange(GuildMemberUpdateEventArgs args)
         {
+            if (string.IsNullOrWhiteSpace(args.NicknameAfter))
+                return;
             if (_inviteRegex.Matches(args.NicknameAfter).Count > 0)
             {
                 await args.Member.RemoveAsync("nightwatch");

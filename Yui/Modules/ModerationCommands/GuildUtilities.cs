@@ -40,11 +40,12 @@ namespace Yui.Modules.ModerationCommands
         [Command("modrole"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
         public async Task SetModRole(CommandContext ctx, DiscordRole modRole = null)
         {
-            if (!IsAdmin(ctx, out var guild))
+            if (!IsAdmin(ctx))
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 guild.ModRole = modRole == null ? 0 : modRole.Id;
                 guilds.Update(guild);
             }
@@ -56,11 +57,12 @@ namespace Yui.Modules.ModerationCommands
         [Command("nightwatch"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
         public async Task SetNightwatch(CommandContext ctx, bool set)
         {
-            if (!IsAdmin(ctx, out var guild))
+            if (!IsAdmin(ctx))
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 guild.NightWatchEnabled = set;
                 guilds.Update(guild);
             }
@@ -71,11 +73,12 @@ namespace Yui.Modules.ModerationCommands
         [Command("lang"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
         public async Task SetLangAsync(CommandContext ctx, Guild.Languages lang)
         {
-            if (!IsAdmin(ctx, out var guild))
+            if (!IsAdmin(ctx))
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 guild.Lang = lang;
                 guilds.Update(guild);
             }
@@ -87,11 +90,12 @@ namespace Yui.Modules.ModerationCommands
         [Command("prefix"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
         public async Task SetPrefixAsync(CommandContext ctx, string prefix)
         {
-            if (!IsAdmin(ctx, out var guild))
+            if (!IsAdmin(ctx))
                 return;
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
+                var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 guild.Prefix = prefix;
                 guilds.Update(guild);
             }
@@ -118,23 +122,7 @@ namespace Yui.Modules.ModerationCommands
             await ctx.Channel.DeleteMessagesAsync(messages);
             await ctx.RespondAsync(trans.ClearCommandDone.Replace("{{messagesCounts}}", messages.Count().ToString()));
         }
-        internal static bool IsAdmin(CommandContext ctx, out Guild guild)
-        {
-
-            using (var db = new LiteDatabase("Data.db"))
-            {
-                var guilds = db.GetCollection<Guild>();
-                guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
-                var guild1 = guild;
-                if (ctx.Member.Roles.First(x => x.Id == guild1.ModRole) != null && guild.ModRole != 0)
-                    return true;
-            }
-            
-            return ctx.Member.Roles.Any(role => role.Permissions.HasPermission(Permissions.Administrator)) ||
-                   ctx.Member.IsOwner;
-        }
-
-        public static bool IsAdmin(CommandContext ctx)
+        internal static bool IsAdmin(CommandContext ctx)
         {
             if (ctx.Member.IsOwner)
                 return true;
@@ -145,8 +133,7 @@ namespace Yui.Modules.ModerationCommands
                 var guilds = db.GetCollection<Guild>();
                 var guild = guilds.FindOne(x => x.Id == ctx.Guild.Id);
                 if (guild.ModRole == 0) return false;
-                var guild1 = guild;
-                if (ctx.Member.Roles.First(x => x.Id == guild1.ModRole) != null)
+                if (ctx.Member.Roles.First(x => x.Id == guild.ModRole) != null)
                     return true;
             }
             return false;

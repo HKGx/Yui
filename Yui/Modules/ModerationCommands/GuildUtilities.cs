@@ -120,11 +120,7 @@ namespace Yui.Modules.ModerationCommands
         }
         internal static bool IsAdmin(CommandContext ctx, out Guild guild)
         {
-            guild = null;
-            if (ctx.Member.Roles.Any(role => role.Permissions.HasPermission(Permissions.Administrator)))
-                return true;
-            if (ctx.Member.IsOwner)
-                return true;
+
             using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
@@ -134,14 +130,15 @@ namespace Yui.Modules.ModerationCommands
                 if (ctx.Member.Roles.First(x => x.Id == guild1.ModRole) != null)
                     return true;
             }
-            return false;
+            return ctx.Member.Roles.Any(role => role.Permissions.HasPermission(Permissions.Administrator)) ||
+                   ctx.Member.IsOwner;
         }
 
         public static bool IsAdmin(CommandContext ctx)
         {
-            if (ctx.Member.Roles.Any(role => role.Permissions.HasPermission(Permissions.Administrator)))
-                return true;
             if (ctx.Member.IsOwner)
+                return true;
+            if (ctx.Member.Roles.Any(role => role.Permissions.HasPermission(Permissions.Administrator)))
                 return true;
             using (var db = new LiteDatabase("Data.db"))
             {

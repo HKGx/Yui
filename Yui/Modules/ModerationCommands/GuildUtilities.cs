@@ -73,7 +73,6 @@ namespace Yui.Modules.ModerationCommands
         [Command("lang"), Cooldown(1, 10, CooldownBucketType.Guild), RequireGuild]
         public async Task SetLangAsync(CommandContext ctx, Guild.Languages lang)
         {
-            (await ctx.Client.GetCurrentApplicationAsync()).GenerateBotOAuth(Permissions.Administrator);
             if (!IsAdmin(ctx))
                 return;
             using (var db = new LiteDatabase("Data.db"))

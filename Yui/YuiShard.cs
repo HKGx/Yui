@@ -92,7 +92,7 @@ namespace Yui
             
             Interactivity = Client.UseInteractivity(new InteractivityConfiguration());
             var scheduler = new Scheduler();
-            
+            //todo: make use of scheduler 
 
         }
 

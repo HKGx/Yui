@@ -11,15 +11,13 @@ namespace Yui.Handlers
         static NightWatch()
         {
             _inviteRegex =
-                new Regex(@"/(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]/",
-                    RegexOptions.ECMAScript | RegexOptions.Multiline);
+                new Regex(@"discord(?:app\.com|\.gg)[\/invite\/]?(?:(?!.*[Ii10OolL]).[a-zA-Z0-9]{5,6}|[a-zA-Z0-9\-]{2,32})",
+                    RegexOptions.ECMAScript | RegexOptions.Multiline | RegexOptions.IgnoreCase);
         }
         public static async Task NightWatchMessage(MessageCreateEventArgs args)
         {
-            Console.WriteLine("ddd");
-            if (_inviteRegex.Matches(args.Message.Content).Count > 0)
+            if (_inviteRegex.IsMatch(args.Message.Content))
             {
-                Console.WriteLine("match");
                 await args.Message.DeleteAsync();
                 await (await args.Guild.GetMemberAsync(args.Author.Id)).RemoveAsync("nightwatch");
             }

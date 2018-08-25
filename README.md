@@ -24,3 +24,6 @@ Some commands will just drop when Yui has wrong permissions.
 ##
 ### List of Commands:
 [Click here!](https://github.com/HkgStudio/Yui/wiki/Commands)
+### Suggest Feature:
+[Click here!](https://github.com/HkgStudio/Yui/blob/master/FEATURES.MD)
+##

@@ -9,28 +9,15 @@ using Yui.Entities.Database;
 namespace Yui
 {
     public class SharedData
-    {
-        public ConcurrentBag<string> HugGifs { get; set; } = new ConcurrentBag<string>();
-        
+    {    
         public ConcurrentDictionary<Guild.Languages, Translation> Translations { get; set; }
        
         public CancellationTokenSource CTS { get; set; }
+
+        public ApiKeys ApiKeys { get; set; }
         
         private readonly string _currentDirectory = Directory.GetCurrentDirectory();
 
-        public void ReloadHugs()
-        {
-            HugGifs.Clear();
-            foreach (var file in Directory.GetFiles(_currentDirectory + "/hugs"))
-            {
-                if (!file.StartsWith("hug"))
-                    continue;
-                if (file.EndsWith(".gif"))
-                {
-                    HugGifs.Add(file);
-                }
-            }
-        }
         public async Task LoadTranslationsAsync()
         {
             Translations =

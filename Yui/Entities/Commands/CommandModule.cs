@@ -17,14 +17,16 @@ namespace Yui.Entities.Commands
         protected SharedData Data;
         protected Random Random;
         protected HttpClient Http;
+        protected Api.Imgur.Client ImgurClient;
         protected InteractivityExtension Interactivity;
         protected List<DiscordMessage> ToDelete = new List<DiscordMessage>();
 
-        public CommandModule(SharedData data, Random random, HttpClient http)
+        public CommandModule(SharedData data, Random random, HttpClient http, Api.Imgur.Client imgurClient)
         {
             Data = data;
             Random = random;
             Http = http;
+            ImgurClient = imgurClient;
         }
 
         public virtual Task BeforeCallingAsync(CommandContext ctx) => Task.Delay(0);

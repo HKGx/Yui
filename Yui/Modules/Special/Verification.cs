@@ -15,7 +15,7 @@ namespace Yui.Modules.Special
         private const ulong GuildId = 477477417351512105;
         private const ulong RoleId = 482915346530041866;
         private const ulong NewUsersChannelId = 482528066556657665;
-        public Verification(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public Verification(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

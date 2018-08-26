@@ -25,10 +25,7 @@ namespace Yui
             var sharedData = new SharedData();
             var currentDirectory = Directory.GetCurrentDirectory();
             Directory.CreateDirectory(currentDirectory + "/data");
-            #region GET HUGS
-            Directory.CreateDirectory(currentDirectory + "/hugs");
-            sharedData.ReloadHugs();
-            #endregion
+            
             
             #region Get Translations
 
@@ -42,12 +39,12 @@ namespace Yui
             await sharedData.LoadTranslationsAsync();
             #endregion
             
-            #region  GET TOKEN
+            #region  GET TOKENS
 
             if (!File.Exists(currentDirectory + "/token.json"))
             {
                 await File.WriteAllTextAsync(currentDirectory + "/token.json",
-                    JsonConvert.SerializeObject(new ApiKeys{ BotToken = ""}, Formatting.Indented));
+                    JsonConvert.SerializeObject(new ApiKeys(), Formatting.Indented));
                 Console.WriteLine("Oops, I've generated you token file!");
                 Console.WriteLine("Click any key to exit.");
                 Console.ReadKey();
@@ -56,22 +53,24 @@ namespace Yui
             
             var token = JsonConvert.DeserializeObject<ApiKeys>(
                 await File.ReadAllTextAsync(currentDirectory + "/token.json"));
-            if (string.IsNullOrWhiteSpace(token.BotToken))
+            if (string.IsNullOrWhiteSpace(token.BotToken) || string.IsNullOrWhiteSpace(token.ImgurClientKey))
             {
-                Console.WriteLine("Oops, check your token, please!");
+                Console.WriteLine("Oops, check your tokens, please!");
                 Console.WriteLine("Click any key to exit.");
                 Console.ReadKey();
                 return;
             }
             #endregion
-
-
-
+            
             YToolbox = new YuiToolbox();
+            var imgurClient = new Api.Imgur.Client(token.ImgurClientKey);
+            
+            sharedData.ApiKeys = token;
             sharedData.CTS = YToolbox._cts;
+            
             for (var i = 0; i < 2; i++)
             {
-                var shard = new YuiShard(i, sharedData);
+                var shard = new YuiShard(i, sharedData, imgurClient);
                 shard.Initialize(token.BotToken);
                 YToolbox.Shards.Add(shard);
             }

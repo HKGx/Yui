@@ -21,7 +21,7 @@ namespace Yui.Modules.UserCommands
 {
     public class User : CommandModule
     {
-        public User(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public User(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

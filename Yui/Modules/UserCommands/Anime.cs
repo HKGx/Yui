@@ -14,7 +14,7 @@ namespace Yui.Modules.UserCommands
     [Group("anime"), Aliases("a")]
     public class Anime : CommandModule
     {
-        public Anime(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public Anime(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

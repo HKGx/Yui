@@ -26,11 +26,13 @@ namespace Yui
         
         private int _shardId;
         private SharedData _data;
-
-        public YuiShard(int shardId, SharedData data)
+        private Api.Imgur.Client _imgurClient;
+        
+        public YuiShard(int shardId, SharedData data, Api.Imgur.Client imgurClient)
         {
             _shardId = shardId;
             _data = data;
+            _imgurClient = imgurClient;
         }
 
         public void Initialize(string token)
@@ -70,6 +72,7 @@ namespace Yui
                 .AddSingleton(_data)
                 .AddSingleton(new Random())
                 .AddSingleton(new HttpClient())
+                .AddSingleton(_imgurClient)
                 .BuildServiceProvider();
             var commandsConfig = new CommandsNextConfiguration
             {
@@ -256,9 +259,10 @@ namespace Yui
             await Client.DisconnectAsync();
             Client.Dispose();
         }
+        
 
 
-        private Task<int> ResolvePrefixAsync(DiscordMessage msg)
+        private static Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {
             using (var db = new LiteDatabase(@"Data.db"))
             {

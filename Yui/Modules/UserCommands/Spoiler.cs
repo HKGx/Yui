@@ -14,7 +14,7 @@ namespace Yui.Modules.UserCommands
     {
 
 
-        public Spoiler(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public Spoiler(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

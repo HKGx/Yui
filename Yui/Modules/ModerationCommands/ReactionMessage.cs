@@ -18,7 +18,7 @@ namespace Yui.Modules.ModerationCommands
     [Group("reactionmessage"), Aliases("rm", "reaction-message", "rmessage", "reactionm")]
     public class ReactionMessage : CommandModule
     {
-        public ReactionMessage(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public ReactionMessage(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

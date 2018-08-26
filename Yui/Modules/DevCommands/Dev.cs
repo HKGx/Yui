@@ -20,7 +20,7 @@ namespace Yui.Modules.DevCommands
     [Group("dev"), Aliases("d")]
     public class Dev : CommandModule
     {
-        public Dev(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public Dev(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 
@@ -40,13 +40,6 @@ namespace Yui.Modules.DevCommands
         {
             await Data.LoadTranslationsAsync();
             await ctx.RespondAsync(ctx.Guild.GetTranslation(Data).ReloadedTranslationsText);
-        }
-
-        [Command("rhugs"), RequireOwner]
-        public async Task ReloadHugsAsync(CommandContext ctx)
-        {
-            Data.ReloadHugs();
-            await ctx.RespondAsync(ctx.Guild.GetTranslation(Data).ReloadedHugsText);
         }
 
         [Command("addhug"), RequireOwner]

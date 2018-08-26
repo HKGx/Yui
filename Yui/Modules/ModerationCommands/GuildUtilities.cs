@@ -17,7 +17,7 @@ namespace Yui.Modules.ModerationCommands
 {
     public class GuildUtilities : CommandModule
     {
-        public GuildUtilities(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public GuildUtilities(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

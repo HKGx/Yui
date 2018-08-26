@@ -12,7 +12,7 @@ namespace Yui.Modules.Lewdery
 {
     public class Lewderies : CommandModule
     {
-        public Lewderies(SharedData data, Random random, HttpClient http) : base(data, random, http)
+        public Lewderies(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
 

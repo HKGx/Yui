@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,19 +7,19 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using LiteDB;
-using Yui.Entities;
+using Yui.Entities.Commands;
+using Yui.Entities.Database;
 using Yui.Extensions;
 
 namespace Yui.Modules.ModerationCommands
 {
     [Group("reactionmessage"), Aliases("rm", "reaction-message", "rmessage", "reactionm")]
-    public class ReactionMessage : BaseCommandModule
+    public class ReactionMessage : CommandModule
     {
-        private SharedData _data;
-        public ReactionMessage(SharedData data)
+        public ReactionMessage(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
-            _data = data;
         }
 
         [GroupCommand,
@@ -31,7 +30,7 @@ namespace Yui.Modules.ModerationCommands
             if (!GuildUtilities.IsAdmin(ctx))
                 return;
             
-            var trans = ctx.Guild.GetTranslation(_data);
+            var trans = ctx.Guild.GetTranslation(Data);
             
             var discordRoles = roles.ToList();
             var discordEmojis = emojis.ToList();
@@ -42,13 +41,6 @@ namespace Yui.Modules.ModerationCommands
                 return;
             }
 
-            var find = (discordEmojis.Find(x => !YuiToolbox.YToolbox.Emojis.Contains(x) && x.Id > 0));
-            if (find != null)
-            {
-                Console.WriteLine(find);
-                await ctx.RespondAsync(trans.ReactionCommandEmojiUnreachableText);
-                return;
-            }
 
             await ctx.Message.DeleteAsync();
             var embed = new DiscordEmbedBuilder
@@ -62,30 +54,38 @@ namespace Yui.Modules.ModerationCommands
                 var emoji = discordEmojis[i];
                 list.Add(new EmojiToRole
                 {
-                    Id = emoji.Id,
-                    Name = emoji.Name,
+                    FullName = emoji.ToString(),
                     Role = role.Id
                 });
+                
                 embed.AddField(role.Name, emoji.ToString(), true);
 
             }
-
-
             var msg = await ctx.RespondAsync(embed: embed);
+            
+            foreach (var emoji in discordEmojis)
+            {
+                try
+                {
+                    await msg.CreateReactionAsync(emoji);
+                }
+                catch (BadRequestException)
+                {
+                    var text = trans.ReactionCommandEmojiUnreachableText.Replace("{{emojiName}}", emoji.GetDiscordName());
+                    await ctx.RespondAsync(text);
+                    return;
+                }
+            }
             using (var db = new LiteDatabase("Data.db"))
             {
-                var rms = db.GetCollection<Entities.ReactionMessage>();
-                rms.Insert(new Entities.ReactionMessage
+                var rms = db.GetCollection<Entities.Database.ReactionMessage>();
+                rms.Insert(new Entities.Database.ReactionMessage
                 {
                     ChannelId = ctx.Channel.Id,
                     EmojiToRole = list,
                     GuildId = ctx.Guild.Id,
                     MessageId = msg.Id
                 });
-            }
-            foreach (var emoji in discordEmojis)
-            {
-                await msg.CreateReactionAsync(emoji);
             }
 
 

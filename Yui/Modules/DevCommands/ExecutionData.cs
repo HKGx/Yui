@@ -3,7 +3,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Yui.Modules
+namespace Yui.Modules.DevCommands
 {
     public class ExecutionData
     {

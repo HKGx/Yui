@@ -2,24 +2,43 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace Yui
 {
     public class Scheduler
     {
-        public Scheduler()
-        {
-            _tenSecondsTimer = new Timer(async x => await TenSecondsCallback(x), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
-        }
+        public Scheduler(CancellationTokenSource cts) => _cts = cts;
+        private readonly CancellationTokenSource _cts;
 
-        private Timer _tenSecondsTimer;
-        
+        public async Task Run()
+        {
+#pragma warning disable 4014
+            Task.Run(async () =>
+                {
+                    while (!_cts.IsCancellationRequested)
+                    {
+                        OnTenSecondsPassed();
+                        await Task.Delay(TimeSpan.FromSeconds(10));
+                    }
+                }
+            );
+
+            Task.Run(async () =>
+#pragma warning restore 4014
+                {
+                    while (!_cts.IsCancellationRequested)
+                    {
+                        OnMinutePassed();
+                        await Task.Delay(TimeSpan.FromMinutes(1));
+                    }
+                }
+            );
+        }
         public event AsyncEventHandler TenSecondsPassed;
-
-        private Task TenSecondsCallback(object o)
-        {
-            return Task.FromResult(TenSecondsPassed?.Invoke());
-        }
+        public event AsyncEventHandler MinutePassed;
+        
+        private void OnTenSecondsPassed() => TenSecondsPassed?.Invoke();
+        private void OnMinutePassed() => MinutePassed?.Invoke();
     }
+
 }

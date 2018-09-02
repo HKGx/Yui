@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -12,89 +11,59 @@ using DSharpPlus.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using Yui.Entities.Commands;
-using Yui.Extensions;
 
-namespace Yui.Modules.DevCommands
+namespace Yui.Commands.Developer
 {
-    [Group("dev"), Aliases("d")]
-    public class Dev : CommandModule
+    public class Developer : CommandModule
     {
-        public Dev(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
+        public Developer(SharedData data, Random random, HttpClient client) : base(data, random, client)
         {
         }
 
-        [GroupCommand]
-        public async Task GetDevAsync(CommandContext ctx)
+        [Command("end")]
+        public async Task EndSession(CommandContext ctx)
         {
-            
-            var trans = ctx.Guild.GetTranslation(Data);
-            var devUser = (await ctx.Client.GetCurrentApplicationAsync()).Owner;
-            var text = trans.GetDevText.Replace("{{devName}}", $"{devUser.Username}#{devUser.Discriminator}") +
-                       ":heart:";
-            await ctx.RespondAsync(text);
-        }
-
-        [Command("rtrans"), RequireOwner]
-        public async Task ReloadTranslationsAsync(CommandContext ctx)
-        {
-            await Data.LoadTranslationsAsync();
-            await ctx.RespondAsync(ctx.Guild.GetTranslation(Data).ReloadedTranslationsText);
-        }
-
-        [Command("addhug"), RequireOwner]
-        public async Task AddHugAsync(CommandContext ctx, params string[] urls)
-        {
-            foreach (var url in urls)
+            if (ctx.Member.Id != ctx.Client.CurrentApplication.Owner.Id)
             {
-                if (!url.EndsWith(".gif"))
-                    return;
-                var name = "hug-" + url.Split('/')[url.Split('/').Length - 1];
-                var hugName = Directory.GetCurrentDirectory() + "\\hugs\\" + name;
-                using (var stream = await Http.GetStreamAsync(url))
-                {
-                    using (var fs = File.Create(hugName))
-                    {
-                        await stream.CopyToAsync(fs);
-                    }
-                }
+                return;
             }
+            Data.Cts.Cancel();
         }
-
-        [Command("eval"), RequireOwner]
+        [Command("eval")]
         public async Task EvalAsync(CommandContext ctx, [RemainingText] string code)
         {
+            if (ctx.Member.Id != ctx.Client.CurrentApplication.Owner.Id)
+            {
+                return;
+            }
+
             if (!code.StartsWith("```"))
+            {
                 return;
+            }
+
             if (!code.EndsWith("```"))
+            {
                 return;
+            }
             code = code.TrimStart('`').TrimEnd('`');
-            #region script compilation info
             var imports = new List<string>
             {
                 "System", "System.Collections.Generic", "System.Diagnostics", "System.Linq", "System.Net.Http",
                 "System.Net.Http.Headers","System.IO","System.Reflection", "System.Text", "System.Text.RegularExpressions",
-                "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Entities",
-                "DSharpPlus.EventArgs", "DSharpPlus.Exceptions",
-                "Yui.Entities", "Yui", "Yui.Extensions"
+                "System.Threading.Tasks",
+                "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Entities", "DSharpPlus.EventArgs", "DSharpPlus.Exceptions",
+                "Yui.Entities", "Yui",
             };
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location));
-
-            #endregion
-
-            #region  create compilation
-
-            var globals = new ExecutionData(ctx, Data);
+                var globals = new ExecData(ctx, Data);
             var script = CSharpScript.Create(code, ScriptOptions.Default.AddImports(imports).AddReferences(references),
-                typeof(ExecutionData));
+                typeof(ExecData));
             var sw = Stopwatch.StartNew();
             var compilation = script.Compile();
             sw.Stop();
-
-            #endregion
-
-            #region return compilation errors
+            
 
             DiscordEmbedBuilder embed;
             if (compilation.Any(s => s.Severity == DiagnosticSeverity.Error))
@@ -118,10 +87,6 @@ namespace Yui.Modules.DevCommands
                 return;
             }
 
-            #endregion
-
-            #region run script
-
             Exception runEx = null;
             ScriptState<object> scriptExec = null;
             var sw2 = Stopwatch.StartNew();
@@ -137,7 +102,6 @@ namespace Yui.Modules.DevCommands
 
             sw2.Stop();
 
-            #endregion
 
             #region return runtime errors
 
@@ -170,5 +134,6 @@ namespace Yui.Modules.DevCommands
 
             #endregion
         }
+        
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using LiteDB;
 using Yui.Entities.Database;
-using Yui.Modules.UserCommands;
 
 namespace Yui.Entities.Commands
 {

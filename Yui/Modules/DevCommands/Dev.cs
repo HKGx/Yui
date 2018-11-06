@@ -42,25 +42,6 @@ namespace Yui.Modules.DevCommands
             await ctx.RespondAsync(ctx.Guild.GetTranslation(Data).ReloadedTranslationsText);
         }
 
-        [Command("addhug"), RequireOwner]
-        public async Task AddHugAsync(CommandContext ctx, params string[] urls)
-        {
-            foreach (var url in urls)
-            {
-                if (!url.EndsWith(".gif"))
-                    return;
-                var name = "hug-" + url.Split('/')[url.Split('/').Length - 1];
-                var hugName = Directory.GetCurrentDirectory() + "\\hugs\\" + name;
-                using (var stream = await Http.GetStreamAsync(url))
-                {
-                    using (var fs = File.Create(hugName))
-                    {
-                        await stream.CopyToAsync(fs);
-                    }
-                }
-            }
-        }
-
         [Command("eval"), RequireOwner]
         public async Task EvalAsync(CommandContext ctx, [RemainingText] string code)
         {

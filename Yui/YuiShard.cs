@@ -2,19 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
+using Yui.Api.Imgur;
+using Yui.Converters;
+using Yui.Entities.Commands;
 using Yui.Entities.Database;
 using Yui.Extensions;
-using Yui.Modules.Special;
-using Yui.Modules.UserCommands;
+using Yui.Handlers;
 
 namespace Yui
 {
@@ -26,9 +28,9 @@ namespace Yui
         
         private int _shardId;
         private SharedData _data;
-        private Api.Imgur.Client _imgurClient;
+        private Client _imgurClient;
         
-        public YuiShard(int shardId, SharedData data, Api.Imgur.Client imgurClient)
+        public YuiShard(int shardId, SharedData data, Client imgurClient)
         {
             _shardId = shardId;
             _data = data;
@@ -78,16 +80,14 @@ namespace Yui
             {
                 EnableDefaultHelp = false,
                 Services = services,
-                PrefixResolver = ResolvePrefixAsync,
+                PrefixResolver = ResolvePrefixAsync
             };
             Commands = Client.UseCommandsNext(commandsConfig);
 
-            Commands.RegisterConverter(new Converters.OrderConverter());
-            Commands.RegisterConverter(new Converters.ProfileTypeConverter());
-            Commands.RegisterConverter(new Converters.LangConverter());
-            Commands.RegisterConverter(new Converters.EmojiEnumerableConverter());
-            Commands.RegisterConverter(new Converters.RoleEnumerableConverter());
-
+            Commands.RegisterConverter(new EnumConverter<Order>());
+            Commands.RegisterConverter(new EnumConverter<Guild.Languages>());
+            Commands.RegisterConverter(new EnumerableConverter<DiscordEmoji>(new DiscordEmojiConverter()));
+            Commands.RegisterConverter(new EnumerableConverter<DiscordRole>(new DiscordRoleConverter()));
             Commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
             
@@ -95,7 +95,6 @@ namespace Yui
             Commands.CommandExecuted += async args => { Console.WriteLine("done " + args.Command.Name); };
             
             Interactivity = Client.UseInteractivity(new InteractivityConfiguration());
-            var scheduler = new Scheduler();
             //todo: make use of scheduler 
 
         }
@@ -110,7 +109,7 @@ namespace Yui
                 var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
                 if (guild.NightWatchEnabled)
                 {
-                    tasks.Add(Handlers.NightWatch.NightWatchUserChange(args));
+                    tasks.Add(NightWatch.NightWatchUserChange(args));
                 }
             }
 
@@ -130,15 +129,15 @@ namespace Yui
                 var guild = guilds.FindOne(x => x.Id == args.Guild.Id);
                 if (guild.NightWatchEnabled)
                 {
-                    tasks.Add(Handlers.NightWatch.NightWatchUserJoin(args));
+                    tasks.Add(NightWatch.NightWatchUserJoin(args));
                 }
 
                 if (guild.AutoRole > 0)
                 {
-                    tasks.Add(Handlers.Join.OnJoin(args, guild.AutoRole));
+                    tasks.Add(Join.OnJoinAddRole(args, guild.AutoRole));
                 }
             }
-            tasks.Add(Handlers.SpecialJoin.OnSpecialJoin(args));
+            tasks.Add(SpecialJoin.OnSpecialJoin(args));
             await Task.WhenAll(tasks);
 
             
@@ -212,7 +211,7 @@ namespace Yui
         private async Task ClientOnGuildAvailable(GuildCreateEventArgs e)
         {
             Console.WriteLine(e.Guild.Name + " | " + _shardId);
-            using (var db = new LiteDB.LiteDatabase("Data.db"))
+            using (var db = new LiteDatabase("Data.db"))
             {
                 var guilds = db.GetCollection<Guild>();
                 if (guilds.Exists(x => x.Id == e.Guild.Id))
@@ -244,7 +243,7 @@ namespace Yui
                 }
                 if (guild.NightWatchEnabled)
                 {
-                    tasks.Add(Handlers.NightWatch.NightWatchMessage(args));
+                    tasks.Add(NightWatch.NightWatchMessage(args));
                 }
             }
             await Task.WhenAll(tasks);

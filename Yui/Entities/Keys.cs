@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Yui.Entities
 {
-    public class ApiKeys
+    public class Keys
     {
         [JsonProperty("token")] public string BotToken { get; set; } = "";
 

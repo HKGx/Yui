@@ -14,7 +14,7 @@ namespace Yui
        
         public CancellationTokenSource CTS { get; set; }
 
-        public ApiKeys ApiKeys { get; set; }
+        public Keys Keys { get; set; }
         
         private readonly string _currentDirectory = Directory.GetCurrentDirectory();
 

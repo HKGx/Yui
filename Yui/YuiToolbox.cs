@@ -44,14 +44,14 @@ namespace Yui
             if (!File.Exists(currentDirectory + "/token.json"))
             {
                 await File.WriteAllTextAsync(currentDirectory + "/token.json",
-                    JsonConvert.SerializeObject(new ApiKeys(), Formatting.Indented));
+                    JsonConvert.SerializeObject(new Keys(), Formatting.Indented));
                 Console.WriteLine("Oops, I've generated you token file!");
                 Console.WriteLine("Click any key to exit.");
                 Console.ReadKey();
                 return;
             }
             
-            var token = JsonConvert.DeserializeObject<ApiKeys>(
+            var token = JsonConvert.DeserializeObject<Keys>(
                 await File.ReadAllTextAsync(currentDirectory + "/token.json"));
             if (string.IsNullOrWhiteSpace(token.BotToken) || string.IsNullOrWhiteSpace(token.ImgurClientKey))
             {
@@ -65,7 +65,7 @@ namespace Yui
             YToolbox = new YuiToolbox();
             var imgurClient = new Api.Imgur.Client(token.ImgurClientKey);
             
-            sharedData.ApiKeys = token;
+            sharedData.Keys = token;
             sharedData.CTS = YToolbox._cts;
             
             for (var i = 0; i < 2; i++)

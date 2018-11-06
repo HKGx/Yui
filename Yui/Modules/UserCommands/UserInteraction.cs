@@ -20,7 +20,11 @@ namespace Yui.Modules.UserCommands
         [Command("hug"), RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles)]
         public async Task HugAsync(CommandContext ctx, DiscordMember member, [RemainingText]string rest)
         {
-            var hugs = (await ImgurClient.GetAlbumImagesFromId(Data.ApiKeys.HugAlbum)).Data.Where(x =>
+            /*  this thingy is stupid 
+                like, I could just save somewhere those pictures
+                no need to ask for them when command is executed lol
+            */
+            var hugs = (await ImgurClient.GetAlbumImagesFromId(Data.Keys.HugAlbum)).Data.Where(x =>
                 x.Link.EndsWith(".gif")).ToList();
             var hug = hugs[Random.Next(0, hugs.Count)].Link;
             string text;

@@ -30,11 +30,10 @@ namespace Yui.Extensions
         }
         public static Guild DefaultGuild(ulong id) => new Guild(id);
 
-        public static Guild WithModRole(this Guild guild, ulong id)
-        {
-            guild.ModRole = id;
-            return guild;
-        }
+        
+        /*
+         * freaking reflections lol
+         */
         public static void SetProperty<T1, T2>(T1 o1, string name, T2 o2)
         {
             var property = o1.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance);

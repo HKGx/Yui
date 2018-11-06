@@ -18,6 +18,10 @@ namespace Yui.Modules.UserCommands
         {
         }
 
+        /*
+         * it was working iirc
+         * but it was kinda crappy
+         */
         [GroupCommand]
         public async Task GetAnimeAsync(CommandContext ctx, [RemainingText] string name)
         {

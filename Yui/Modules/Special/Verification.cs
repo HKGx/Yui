@@ -18,7 +18,9 @@ namespace Yui.Modules.Special
         public Verification(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
-
+        /*
+         * server that used this is dead, but it works
+         */
         [Command("wer")]
         public async Task Verify(CommandContext ctx, DiscordMember user = null)
         {

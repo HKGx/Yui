@@ -4,14 +4,19 @@
 //
 //    var album = Album.FromJson(jsonString);
 
+
+//    powerful quicktype
+
+
+using System.Collections.Generic;
+
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Yui.Api.Imgur
 {
-    using System;
-    using System.Collections.Generic;
 
-    using System.Globalization;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
 
     public partial class Album
     {

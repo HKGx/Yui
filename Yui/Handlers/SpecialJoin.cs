@@ -7,6 +7,9 @@ namespace Yui.Handlers
 {
     public class SpecialJoin
     {
+        /*
+         * server is dead but it's working tho
+         */
         private const ulong ChannelId = 482670759970603019;
         private const ulong GuildId = 477477417351512105;
         public static async Task OnSpecialJoin(GuildMemberAddEventArgs args)

@@ -47,6 +47,10 @@ namespace Yui.Modules.UserCommands
             await ctx.RespondAsync(embed: embed);
         }
 
+        /*
+         * this was just a test
+         * it kinda works but looks ugly af
+         */
         [Command("imgprofile")]
         public async Task GetImgProfile(CommandContext ctx, DiscordUser user = null)
         {

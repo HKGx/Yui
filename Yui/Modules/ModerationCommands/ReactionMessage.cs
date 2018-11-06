@@ -21,7 +21,9 @@ namespace Yui.Modules.ModerationCommands
         public ReactionMessage(SharedData data, Random random, HttpClient http, Api.Imgur.Client client) : base(data, random, http, client)
         {
         }
-
+        /*
+         * I should have just allow for normal discord emojis, not guild ones.
+         */
         [GroupCommand,
          RequireBotPermissions(Permissions.SendMessages | Permissions.UseExternalEmojis | Permissions.AddReactions)]
         public async Task CreateReactionMessage(CommandContext ctx, IEnumerable<DiscordRole> roles,
@@ -34,8 +36,8 @@ namespace Yui.Modules.ModerationCommands
             
             var discordRoles = roles.ToList();
             var discordEmojis = emojis.ToList();
-            if (discordRoles.Count() > 20 || discordEmojis.Count() > 20 ||
-                discordEmojis.Count() != discordRoles.Count())
+            if (discordRoles.Count > 20 || discordEmojis.Count > 20 ||
+                discordEmojis.Count != discordRoles.Count)
             {
                 await ctx.RespondAsync(trans.ReactionCommandOverLimitText);
                 return;

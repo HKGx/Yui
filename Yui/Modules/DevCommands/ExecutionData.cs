@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Yui.Modules.DevCommands
 {
+    /*
+     * stuff for eval command
+     */
     public class ExecutionData
     {
         public CommandContext Context { get; }
